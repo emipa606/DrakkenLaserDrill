@@ -1,0 +1,51 @@
+ManifestFileVersion: 0
+CRC: 119634221
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: f4d7a82276c128d37a5f359005c46f01
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 2612ac43db082a73502ee80f2eceb73f
+  IncrementalBuildHash:
+    serializedVersion: 2
+    Hash: f4d7a82276c128d37a5f359005c46f01
+HashAppended: 0
+ClassTypes:
+- Class: 28
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/Data/Mlie.DrakkenLaserDrill/Textures/DrakkenLaserDrill_Icon/Damage.png
+- Assets/Data/Mlie.DrakkenLaserDrill/Textures/DrakkenLaserDrill_Nothing/Nothing.png
+- Assets/Data/Mlie.DrakkenLaserDrill/Textures/DrakkenLaserDrill_Icon/Destroy.png
+- Assets/Data/Mlie.DrakkenLaserDrill/Textures/DrakkenLaserDrill_Laser/ConcentratedBeam_Effect.png
+- Assets/Data/Mlie.DrakkenLaserDrill/Textures/DrakkenLaserDrill_Icon/Energy.png
+- Assets/Data/Mlie.DrakkenLaserDrill/Textures/DrakkenLaserDrill_Laser/Laser_Big_ConcentratedBeam.png
+- Assets/Data/Mlie.DrakkenLaserDrill/Textures/DrakkenLaserDrill_Building/LaserDrill.png
+- Assets/Data/Mlie.DrakkenLaserDrill/Textures/DrakkenLaserDrill_Icon/MouseAttack_CrossMap.png
+- Assets/Data/Mlie.DrakkenLaserDrill/Textures/DrakkenLaserDrill_Building/DLD_UI.png
+- Assets/Data/Mlie.DrakkenLaserDrill/Textures/DrakkenLaserDrill_Icon/AP.png
+- Assets/Data/Mlie.DrakkenLaserDrill/Textures/DrakkenLaserDrill_Icon/AllAttack.png
+- Assets/Data/Mlie.DrakkenLaserDrill/Textures/DrakkenLaserDrill_Icon/CrossMap_True.png
+- Assets/Data/Mlie.DrakkenLaserDrill/Textures/DrakkenLaserDrill_Laser/Laser_Big.png
+- Assets/Data/Mlie.DrakkenLaserDrill/Textures/DrakkenLaserDrill_Icon/Square.png
+- Assets/Data/Mlie.DrakkenLaserDrill/Textures/DrakkenLaserDrill_Icon/Auto.png
+- Assets/Data/Mlie.DrakkenLaserDrill/Textures/DrakkenLaserDrill_Building/Blue.png
+- Assets/Data/Mlie.DrakkenLaserDrill/Textures/DrakkenLaserDrill_Icon/PulseCannon_CrossMap.png
+- Assets/Data/Mlie.DrakkenLaserDrill/Textures/DrakkenLaserDrill_Icon/AllAttack _CrossMap.png
+- Assets/Data/Mlie.DrakkenLaserDrill/Textures/DrakkenLaserDrill_Icon/Beacon.png
+- Assets/Data/Mlie.DrakkenLaserDrill/Textures/DrakkenLaserDrill_Icon/ConcentratedBeam_CrossMap.png
+- Assets/Data/Mlie.DrakkenLaserDrill/Textures/DrakkenLaserDrill_Laser/Laser.png
+- Assets/Data/Mlie.DrakkenLaserDrill/Textures/DrakkenLaserDrill_Building/Base.png
+- Assets/Data/Mlie.DrakkenLaserDrill/Textures/DrakkenLaserDrill_Laser/Laser_Setting.png
+- Assets/Data/Mlie.DrakkenLaserDrill/Textures/DrakkenLaserDrill_Building/Gray.png
+- Assets/Data/Mlie.DrakkenLaserDrill/Textures/DrakkenLaserDrill_Icon/CrossMap_False.png
+- Assets/Data/Mlie.DrakkenLaserDrill/Textures/DrakkenLaserDrill_Icon/True.png
+- Assets/Data/Mlie.DrakkenLaserDrill/Textures/DrakkenLaserDrill_Icon/Beacon_CrossMap.png
+- Assets/Data/Mlie.DrakkenLaserDrill/Textures/DrakkenLaserDrill_Icon/ConcentratedBeam.png
+- Assets/Data/Mlie.DrakkenLaserDrill/Textures/DrakkenLaserDrill_Icon/MouseAttack.png
+- Assets/Data/Mlie.DrakkenLaserDrill/Textures/DrakkenLaserDrill_Icon/PulseCannon.png
+- Assets/Data/Mlie.DrakkenLaserDrill/Textures/DrakkenLaserDrill_Icon/False.png
+- Assets/Data/Mlie.DrakkenLaserDrill/Textures/DrakkenLaserDrill_Building/LaserDrill_Close.png
+Dependencies: []

@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33723.286
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{d536ab3e-dd42-42f6-959f-84907a646673}") = "MYDE_DrakkenLaserDrill", "MYDE_DrakkenLaserDrill\MYDE_DrakkenLaserDrill.csproj", "{0517c1b6-00a4-4847-afae-244e1ae4e81c]}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0517c1b6-00a4-4847-afae-244e1ae4e81c}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0517c1b6-00a4-4847-afae-244e1ae4e81c}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0517c1b6-00a4-4847-afae-244e1ae4e81c}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0517c1b6-00a4-4847-afae-244e1ae4e81c}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {c93a7fb3-14fe-4668-8588-dd34a203f30a}
+	EndGlobalSection
+EndGlobal
