@@ -1,5 +1,8 @@
 # Changelog for DrakkenLaserDrill
 
+1.6.1 - Fixed preview images
+
+
 1.6.0 - First publish
 Used DeepL to update translations for ChineseSimplified, French, German
 
