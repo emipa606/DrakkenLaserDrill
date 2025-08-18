@@ -80,7 +80,7 @@ public class Comp_DrakkenLaserDrill_AutoAttack : ThingComp
                 {
                     if (pawn.Faction != Faction.OfPlayer && pawn.Faction.HostileTo(Faction.OfPlayer) &&
                         !pawn.IsPrisoner && (!pawn.Downed || ifAttackDown) &&
-                        !pawn.Dead && !pawn.Destroyed)
+                        !pawn.Dead && !pawn.Destroyed && !pawn.IsOnHoldingPlatform)
                     {
                         list.Add(pawn);
                     }
@@ -145,14 +145,7 @@ public class Comp_DrakkenLaserDrill_AutoAttack : ThingComp
 
     private void DoSomething_AutoSwitch()
     {
-        if (IfAutoSwitch)
-        {
-            IfAutoSwitch = false;
-        }
-        else if (!IfAutoSwitch)
-        {
-            IfAutoSwitch = true;
-        }
+        IfAutoSwitch = !IfAutoSwitch;
     }
 
     public void PrepareToAttack()
@@ -195,15 +188,18 @@ public class Comp_DrakkenLaserDrill_AutoAttack : ThingComp
     public override void CompTick()
     {
         Building_DrakkenLaserDrill_AllAttack_Icon = ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Icon/AllAttack");
-        if (IfAutoSwitch)
+        switch (IfAutoSwitch)
         {
-            Building_DrakkenLaserDrill_AutoAttack_Icon = ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Icon/Auto");
-            Building_DrakkenLaserDrill_AutoAttack_Label = "DrakkenLaserDrill_AutoAttack_True_Label".Translate();
-        }
-        else if (!IfAutoSwitch)
-        {
-            Building_DrakkenLaserDrill_AutoAttack_Icon = ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Icon/False");
-            Building_DrakkenLaserDrill_AutoAttack_Label = "DrakkenLaserDrill_AutoAttack_False_Label".Translate();
+            case true:
+                Building_DrakkenLaserDrill_AutoAttack_Icon =
+                    ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Icon/Auto");
+                Building_DrakkenLaserDrill_AutoAttack_Label = "DrakkenLaserDrill_AutoAttack_True_Label".Translate();
+                break;
+            case false:
+                Building_DrakkenLaserDrill_AutoAttack_Icon =
+                    ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Icon/False");
+                Building_DrakkenLaserDrill_AutoAttack_Label = "DrakkenLaserDrill_AutoAttack_False_Label".Translate();
+                break;
         }
 
         if (!IfEnemyCome)
