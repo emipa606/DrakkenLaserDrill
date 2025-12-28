@@ -8,10 +8,10 @@ namespace MYDE_DrakkenLaserDrill;
 [StaticConstructorOnStartup]
 public class Comp_UpdateByBuilding : ThingComp
 {
-    private Texture2D Building_UpdateByBuilding_UpdateAP_Icon;
-
-    private Texture2D Building_UpdateByBuilding_UpdateDamage_Icon;
-    private Texture2D Building_UpdateByBuilding_UpdateEnergy_Icon;
+    // 텍스처를 static으로 선언하여 메모리에 한 번만 로드합니다.
+    private static readonly Texture2D Building_UpdateByBuilding_UpdateAP_Icon = ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Icon/AP");
+    private static readonly Texture2D Building_UpdateByBuilding_UpdateDamage_Icon = ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Icon/Damage");
+    private static readonly Texture2D Building_UpdateByBuilding_UpdateEnergy_Icon = ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Icon/Energy");
 
     public CompProperties_UpdateByBuilding Props => props as CompProperties_UpdateByBuilding;
 
@@ -131,12 +131,5 @@ public class Comp_UpdateByBuilding : ThingComp
         }
 
         list.Clear();
-    }
-
-    public override void CompTick()
-    {
-        Building_UpdateByBuilding_UpdateEnergy_Icon = ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Icon/Energy");
-        Building_UpdateByBuilding_UpdateDamage_Icon = ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Icon/Damage");
-        Building_UpdateByBuilding_UpdateAP_Icon = ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Icon/AP");
     }
 }

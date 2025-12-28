@@ -8,6 +8,10 @@ namespace MYDE_DrakkenLaserDrill;
 [StaticConstructorOnStartup]
 public class Building_DrakkenLaserDrill_Beacon_ConcentratedBeam_CrossMap : ThingWithComps
 {
+    // [오류 수정] 누락된 상수 변수 추가
+    //private readonly float MinLaser_Alpha = 0.6f;
+    //private readonly float MinLaser_Width = 0.3f;
+
     private readonly float MinLaser_Deviation_Range = 12f;
 
     private readonly float MinLaser_Deviation_Range_Speed = 15f;
