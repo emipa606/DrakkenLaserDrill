@@ -8,38 +8,58 @@ namespace MYDE_DrakkenLaserDrill;
 [StaticConstructorOnStartup]
 public class Comp_DrakkenLaserDrill_ConcentratedBeam : ThingComp
 {
-    private Texture2D Building_DrakkenLaserDrill_ConcentratedBeam_Icon;
-    private string Building_DrakkenLaserDrill_ConcentratedBeam_Label;
+    // [수정] 텍스처 캐싱 (성능 최적화)
+    private static readonly Texture2D Icon_Nothing = ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Nothing/Nothing");
+
+    private static readonly Texture2D Icon_Beam =
+        ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Icon/ConcentratedBeam");
 
     public CompProperties_DrakkenLaserDrill_ConcentratedBeam Props =>
         props as CompProperties_DrakkenLaserDrill_ConcentratedBeam;
 
     public override IEnumerable<Gizmo> CompGetGizmosExtra()
     {
+        // 연구 프로젝트 확인 (성능을 위해 매 틱 체크하지 않고 여기서 체크)
         var ResearchProject =
-            DefDatabase<ResearchProjectDef>.AllDefsListForReading.Find(x =>
-                x.defName == "MYDE_DrakkenLaserDrill_Research_ConcentratedBeam");
+            DefDatabase<ResearchProjectDef>.GetNamed("MYDE_DrakkenLaserDrill_Research_ConcentratedBeam", false);
+
         var Building_DrakkenLaserDrill = parent as Building_DrakkenLaserDrill;
         if (Building_DrakkenLaserDrill is { IfCrossMap: true })
         {
             yield break;
         }
 
-        if (ResearchProject.IsFinished)
+        if (ResearchProject is { IsFinished: true })
         {
-            if (Building_DrakkenLaserDrill != null)
+            // [수정] CompTick에서 하던 계산을 여기로 이동
+            string label;
+            Texture2D icon;
+
+            if (Building_DrakkenLaserDrill != null && Building_DrakkenLaserDrill.ConcentratedBeam_EnergyAccumulation >=
+                Building_DrakkenLaserDrill.ConcentratedBeam_EnergyAccumulationMax)
             {
-                var PowerConsumeNum = Building_DrakkenLaserDrill.Base_ConsumePowerFactor *
-                                      Building_DrakkenLaserDrill.DamageNum *
-                                      Building_DrakkenLaserDrill.PowerConsumeFactor_ConcentratedBeam;
-                _ = PowerConsumeNum * CompPower.WattsToWattDaysPerTick * 180f;
+                // 에너지가 꽉 찼을 때
+                var num = Building_DrakkenLaserDrill.Base_ConsumePowerFactor * Building_DrakkenLaserDrill.DamageNum *
+                          Building_DrakkenLaserDrill.PowerConsumeFactor_ConcentratedBeam;
+                var num2 = num * CompPower.WattsToWattDaysPerTick * 180f;
+
+                label = "DrakkenLaserDrill_ConcentratedBeam_Label".Translate() + "：" + num2.ToString("F1"); // 소수점 정리 추천
+                icon = Icon_Beam;
+            }
+            else
+            {
+                // 충전 중일 때
+                var current = Building_DrakkenLaserDrill?.ConcentratedBeam_EnergyAccumulation ?? 0f;
+                var max = Building_DrakkenLaserDrill?.ConcentratedBeam_EnergyAccumulationMax ?? 1f;
+                label = $"{(int)current} / {max}";
+                icon = Icon_Nothing;
             }
 
             yield return new Command_Action
             {
                 action = DoSomething,
-                defaultLabel = Building_DrakkenLaserDrill_ConcentratedBeam_Label,
-                icon = Building_DrakkenLaserDrill_ConcentratedBeam_Icon,
+                defaultLabel = label,
+                icon = icon,
                 defaultDesc = "DrakkenLaserDrill_ConcentratedBeam_Desc".Translate()
             };
         }
@@ -51,11 +71,8 @@ public class Comp_DrakkenLaserDrill_ConcentratedBeam : ThingComp
                 defaultLabel = "Max：ConcentratedBeam",
                 action = delegate
                 {
-                    if (Building_DrakkenLaserDrill != null)
-                    {
-                        Building_DrakkenLaserDrill.ConcentratedBeam_EnergyAccumulation =
-                            Building_DrakkenLaserDrill.ConcentratedBeam_EnergyAccumulationMax;
-                    }
+                    Building_DrakkenLaserDrill?.ConcentratedBeam_EnergyAccumulation =
+                        Building_DrakkenLaserDrill.ConcentratedBeam_EnergyAccumulationMax;
                 }
             };
         }
@@ -64,8 +81,9 @@ public class Comp_DrakkenLaserDrill_ConcentratedBeam : ThingComp
     private void DoSomething()
     {
         var Building_DrakkenLaserDrill = parent as Building_DrakkenLaserDrill;
-        var compPower = Building_DrakkenLaserDrill.TryGetComp<CompPower>();
-        if (Building_DrakkenLaserDrill != null)
+        // [수정] TryGetComp 대신 캐싱된 필드 사용 권장하지만, 이 메서드는 가끔 호출되므로 그냥 두어도 무방함
+        var compPower = Building_DrakkenLaserDrill?.TryGetComp<CompPower>();
+        if (Building_DrakkenLaserDrill != null && compPower != null)
         {
             var num = Building_DrakkenLaserDrill.Base_ConsumePowerFactor * Building_DrakkenLaserDrill.DamageNum *
                       Building_DrakkenLaserDrill.PowerConsumeFactor_ConcentratedBeam;
@@ -177,30 +195,5 @@ public class Comp_DrakkenLaserDrill_ConcentratedBeam : ThingComp
 
             GenDraw.DrawFieldEdges(list2, Color.yellow);
         }, null);
-    }
-
-    public override void CompTick()
-    {
-        var building_DrakkenLaserDrill = parent as Building_DrakkenLaserDrill;
-        if (building_DrakkenLaserDrill != null && building_DrakkenLaserDrill.ConcentratedBeam_EnergyAccumulation <
-            building_DrakkenLaserDrill.ConcentratedBeam_EnergyAccumulationMax)
-        {
-            Building_DrakkenLaserDrill_ConcentratedBeam_Label =
-                (int)building_DrakkenLaserDrill.ConcentratedBeam_EnergyAccumulation + " / " +
-                building_DrakkenLaserDrill.ConcentratedBeam_EnergyAccumulationMax;
-            Building_DrakkenLaserDrill_ConcentratedBeam_Icon =
-                ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Nothing/Nothing");
-        }
-        else if (building_DrakkenLaserDrill != null && building_DrakkenLaserDrill.ConcentratedBeam_EnergyAccumulation >=
-                 building_DrakkenLaserDrill.ConcentratedBeam_EnergyAccumulationMax)
-        {
-            var num = building_DrakkenLaserDrill.Base_ConsumePowerFactor * building_DrakkenLaserDrill.DamageNum *
-                      building_DrakkenLaserDrill.PowerConsumeFactor_ConcentratedBeam;
-            var num2 = num * CompPower.WattsToWattDaysPerTick * 180f;
-            Building_DrakkenLaserDrill_ConcentratedBeam_Label =
-                "DrakkenLaserDrill_ConcentratedBeam_Label".Translate() + "：" + num2.ToString();
-            Building_DrakkenLaserDrill_ConcentratedBeam_Icon =
-                ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Icon/ConcentratedBeam");
-        }
     }
 }

@@ -1,5 +1,8 @@
 # Changelog for DrakkenLaserDrill
 
+1.6.3 - Performance optimization and Korean translation, thanks to percha1108!
+
+
 1.6.2 - Auto attack will now ignore entities on platforms
 
 

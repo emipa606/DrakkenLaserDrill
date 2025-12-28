@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LanguageData>
+  <!-- EN: Drakken Laser Drill -->
+  <MYDE_Building_DrakkenLaserDrill.label>Drakken Laser Drill</MYDE_Building_DrakkenLaserDrill.label>
+  <!-- EN: A giant laser turret that is infinitely upgraded through research technology, has infinite range and consumes power to cause damage. Through research technology, it can infinitely upgrade power storage, damage and armor penetration. -->
+  <MYDE_Building_DrakkenLaserDrill.description>A giant laser turret that is infinitely upgraded through research technology, has infinite range and consumes power to cause damage. Through research technology, it can infinitely upgrade power storage, damage and armor penetration.</MYDE_Building_DrakkenLaserDrill.description>
+  <!-- EN: Beacon -->
+  <MYDE_Building_DrakkenLaserDrill_Beacon.label>Beacon</MYDE_Building_DrakkenLaserDrill_Beacon.label>
+  <!-- EN: Beacon -->
+  <MYDE_Building_DrakkenLaserDrill_Beacon_ConcentratedBeam.label>Beacon</MYDE_Building_DrakkenLaserDrill_Beacon_ConcentratedBeam.label>
+  <!-- EN: Beacon -->
+  <MYDE_Building_DrakkenLaserDrill_Beacon_ConcentratedBeam_CrossMap.label>Beacon</MYDE_Building_DrakkenLaserDrill_Beacon_ConcentratedBeam_CrossMap.label>
+  <!-- EN: Beacon -->
+  <MYDE_Building_DrakkenLaserDrill_Beacon_CrossMap.label>Beacon</MYDE_Building_DrakkenLaserDrill_Beacon_CrossMap.label>
+  <!-- EN: Beacon -->
+  <MYDE_Building_DrakkenLaserDrill_Beacon_Mouse.label>Beacon</MYDE_Building_DrakkenLaserDrill_Beacon_Mouse.label>
+  <!-- EN: Beacon -->
+  <MYDE_Building_DrakkenLaserDrill_Beacon_Mouse_CrossMap.label>Beacon</MYDE_Building_DrakkenLaserDrill_Beacon_Mouse_CrossMap.label>
+  <!-- EN: Beacon -->
+  <MYDE_Building_DrakkenLaserDrill_Beacon_PulseCannon.label>Beacon</MYDE_Building_DrakkenLaserDrill_Beacon_PulseCannon.label>
+  <!-- EN: Beacon -->
+  <MYDE_Building_DrakkenLaserDrill_Beacon_PulseCannon_CrossMap.label>Beacon</MYDE_Building_DrakkenLaserDrill_Beacon_PulseCannon_CrossMap.label>
+  <!-- EN: Upgrade Armor Penetration -->
+  <MYDE_Building_DrakkenLaserDrill_UpdateAP.label>Upgrade Armor Penetration</MYDE_Building_DrakkenLaserDrill_UpdateAP.label>
+  <!-- EN: Upgrade Armor Penetration for "Draken Laser Drill" -->
+  <MYDE_Building_DrakkenLaserDrill_UpdateAP.description>Upgrade Armor Penetration for "Draken Laser Drill"</MYDE_Building_DrakkenLaserDrill_UpdateAP.description>
+  <!-- EN: Upgrade Damage -->
+  <MYDE_Building_DrakkenLaserDrill_UpdateDamage.label>Upgrade Damage</MYDE_Building_DrakkenLaserDrill_UpdateDamage.label>
+  <!-- EN: Upgrade Damage for "Draken Laser Drill" -->
+  <MYDE_Building_DrakkenLaserDrill_UpdateDamage.description>Upgrade Damage for "Draken Laser Drill"</MYDE_Building_DrakkenLaserDrill_UpdateDamage.description>
+  <!-- EN: Upgrade Stored Energy -->
+  <MYDE_Building_DrakkenLaserDrill_UpdateEnergy.label>Upgrade Stored Energy</MYDE_Building_DrakkenLaserDrill_UpdateEnergy.label>
+  <!-- EN: Upgrade Stored Energy for "Draken Laser Drill" -->
+  <MYDE_Building_DrakkenLaserDrill_UpdateEnergy.description>Upgrade Stored Energy for "Draken Laser Drill"</MYDE_Building_DrakkenLaserDrill_UpdateEnergy.description>
+</LanguageData>

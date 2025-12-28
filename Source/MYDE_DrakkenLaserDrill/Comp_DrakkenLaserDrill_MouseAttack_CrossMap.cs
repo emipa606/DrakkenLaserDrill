@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using RimWorld;
 using RimWorld.Planet;
@@ -10,69 +10,52 @@ namespace MYDE_DrakkenLaserDrill;
 [StaticConstructorOnStartup]
 public class Comp_DrakkenLaserDrill_MouseAttack_CrossMap : ThingComp
 {
-    private readonly float MinLaser_Alpha = 0.6f;
+    // [수정] 텍스처 캐싱 (성능 최적화)
+    private static readonly Texture2D Icon_MouseAttack_CrossMap =
+        ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Icon/MouseAttack_CrossMap");
 
+    private static readonly Texture2D Tex_Laser = ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Laser/Laser");
+
+    private readonly float MinLaser_Alpha = 0.6f;
     private readonly float MinLaser_Width = 0.3f;
 
     private readonly float MinLaserPos_A_Range_Limit = 0.4f;
-
     private readonly float MinLaserPos_B_Range_Limit = 0.4f;
-
     private readonly float MinLaserPos_C_Range_Limit = 0.4f;
-
     private readonly float MinLaserPos_D_Range_Limit = 0.4f;
-
     private readonly float MinLaserPos_E_Range_Limit = 0.4f;
-
     private readonly float MinLaserPos_F_Range_Limit = 0.4f;
-    private Texture2D Building_DrakkenLaserDrill_MouseAttack_Icon_CrossMap;
+
+    // 기존 인스턴스 텍스처 변수 삭제됨
 
     private Vector3 MinLaserPos_A_End;
-
     public float MinLaserPos_A_Range = 0.5f;
-
     private Vector3 MinLaserPos_A_Start;
-
     public bool MinLaserPos_A_UpOrDown = true;
 
     private Vector3 MinLaserPos_B_End;
-
     public float MinLaserPos_B_Range = -0.5f;
-
     private Vector3 MinLaserPos_B_Start;
-
     public bool MinLaserPos_B_UpOrDown;
 
     private Vector3 MinLaserPos_C_End;
-
     public float MinLaserPos_C_Range = 0.2f;
-
     private Vector3 MinLaserPos_C_Start;
-
     public bool MinLaserPos_C_UpOrDown = true;
 
     private Vector3 MinLaserPos_D_End;
-
     public float MinLaserPos_D_Range = -0.2f;
-
     private Vector3 MinLaserPos_D_Start;
-
     public bool MinLaserPos_D_UpOrDown;
 
     private Vector3 MinLaserPos_E_End;
-
     public float MinLaserPos_E_Range = -0.1f;
-
     private Vector3 MinLaserPos_E_Start;
-
     public bool MinLaserPos_E_UpOrDown = true;
 
     private Vector3 MinLaserPos_F_End;
-
     public float MinLaserPos_F_Range = 0.1f;
-
     private Vector3 MinLaserPos_F_Start;
-
     public bool MinLaserPos_F_UpOrDown;
 
     public CompProperties_DrakkenLaserDrill_MouseAttack_CrossMap Props =>
@@ -103,7 +86,7 @@ public class Comp_DrakkenLaserDrill_MouseAttack_CrossMap : ThingComp
             {
                 action = DoSomething_I,
                 defaultLabel = "DrakkenLaserDrill_MouseAttack_Label".Translate(),
-                icon = Building_DrakkenLaserDrill_MouseAttack_Icon_CrossMap,
+                icon = Icon_MouseAttack_CrossMap, // [수정] 캐시된 아이콘 사용
                 defaultDesc = "DrakkenLaserDrill_MouseAttack_Desc".Translate()
             };
         }
@@ -119,6 +102,9 @@ public class Comp_DrakkenLaserDrill_MouseAttack_CrossMap : ThingComp
             delegate { GenDraw.DrawWorldRadiusRing(Map.Parent.Tile, MaxRange); },
             target => Comp_DrakkenLaserDrill_Attack_CrossMap.ShowMaxRange(target, Map.Parent.Tile, MaxRange));
     }
+
+    // [이하 ChoseWorldTarget, DoSomething_II, DoSomething_Move, ShowMaxRange 메서드는 변경 없음]
+    // 그대로 복사해서 사용하시면 됩니다.
 
     private bool ChoseWorldTarget(GlobalTargetInfo Target)
     {
@@ -179,11 +165,8 @@ public class Comp_DrakkenLaserDrill_MouseAttack_CrossMap : ThingComp
             ((Building_DrakkenLaserDrill_Beacon_Mouse_CrossMap)GenSpawn.Spawn(
                     building_DrakkenLaserDrill_Beacon_Mouse_CrossMap, cell, TargetMap))
                 .CheckSpawn(Building_DrakkenLaserDrill, realPos, centerVector, num, vector3_By_AngleFlat, num3);
-            if (Building_DrakkenLaserDrill != null)
-            {
-                Building_DrakkenLaserDrill.Building_DrakkenLaserDrill_Beacon_Mouse_CrossMap =
-                    building_DrakkenLaserDrill_Beacon_Mouse_CrossMap;
-            }
+            Building_DrakkenLaserDrill?.Building_DrakkenLaserDrill_Beacon_Mouse_CrossMap =
+                building_DrakkenLaserDrill_Beacon_Mouse_CrossMap;
 
             DoSomething_Move();
         }, null, null);
@@ -274,8 +257,9 @@ public class Comp_DrakkenLaserDrill_MouseAttack_CrossMap : ThingComp
             {
                 a = a
             };
-            var material = MaterialPool.MatFrom(ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Laser/Laser"),
-                ShaderDatabase.Transparent, color);
+
+            // [수정] 텍스처 로딩 대신 캐시된 Tex_Laser 사용
+            var material = MaterialPool.MatFrom(Tex_Laser, ShaderDatabase.Transparent, color);
             var matrix = default(Matrix4x4);
             matrix.SetTRS(pos, Quaternion.AngleAxis(angle, Vector3.up), new Vector3(x, 1f, lengthHorizontal));
             Graphics.DrawMesh(MeshPool.plane10, matrix, material, 0);
@@ -283,6 +267,8 @@ public class Comp_DrakkenLaserDrill_MouseAttack_CrossMap : ThingComp
 
         Draw_MinLaserPos_Prepare();
     }
+
+    // [이하 Get_MinLaserPos_Prepare ~ Get_MinLaserPos_F_Pos 메서드들은 변경 사항 없음]
 
     private void Get_MinLaserPos_A_Pos()
     {
@@ -594,8 +580,9 @@ public class Comp_DrakkenLaserDrill_MouseAttack_CrossMap : ThingComp
         {
             a = MinLaser_Alpha
         };
-        var material = MaterialPool.MatFrom(ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Laser/Laser"),
-            ShaderDatabase.Transparent, color);
+
+        // [수정] 텍스처 로딩 대신 캐시된 Tex_Laser 사용
+        var material = MaterialPool.MatFrom(Tex_Laser, ShaderDatabase.Transparent, color);
         var matrix = default(Matrix4x4);
         matrix.SetTRS(pos, Quaternion.AngleAxis(angle, Vector3.up), new Vector3(x, 1f, lengthHorizontal));
         Graphics.DrawMesh(MeshPool.plane10, matrix, material, 0);
@@ -603,13 +590,15 @@ public class Comp_DrakkenLaserDrill_MouseAttack_CrossMap : ThingComp
 
     public override void CompTick()
     {
-        Building_DrakkenLaserDrill_MouseAttack_Icon_CrossMap =
-            ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Icon/MouseAttack_CrossMap");
+        // [수정] 매 틱 텍스처 로딩 코드 삭제
+        // Building_DrakkenLaserDrill_MouseAttack_Icon_CrossMap = ...;
+
         if (parent is Building_DrakkenLaserDrill { Building_DrakkenLaserDrill_Beacon_Mouse_CrossMap: null })
         {
             return;
         }
 
+        // [유지] 애니메이션 계산 로직
         Get_MinLaserPos_A_Pos();
         Get_MinLaserPos_B_Pos();
         Get_MinLaserPos_C_Pos();

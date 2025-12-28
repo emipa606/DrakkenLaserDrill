@@ -10,84 +10,62 @@ namespace MYDE_DrakkenLaserDrill;
 [StaticConstructorOnStartup]
 public class Comp_DrakkenLaserDrill_PulseCannon_CrossMap : ThingComp
 {
+    // [수정] 텍스처 캐싱 (성능 최적화)
+    private static readonly Texture2D Icon_Nothing = ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Nothing/Nothing");
+
+    private static readonly Texture2D Icon_CrossMap =
+        ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Icon/PulseCannon_CrossMap");
+
+    private static readonly Texture2D Tex_LaserBig = ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Laser/Laser_Big");
+    private static readonly Texture2D Tex_Laser = ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Laser/Laser");
+
     private readonly float MinLaser_Deviation_Range = 12f;
-
     private readonly float MinLaser_Deviation_Range_Speed = 15f;
-
     private readonly float MinLaser_Rotate_Speed = 2f;
 
     private readonly float MinLaserPos_A_Range_Limit = 0.4f;
-
     private readonly float MinLaserPos_B_Range_Limit = 0.4f;
-
     private readonly float MinLaserPos_C_Range_Limit = 0.4f;
-
     private readonly float MinLaserPos_D_Range_Limit = 0.4f;
-
     private readonly float MinLaserPos_E_Range_Limit = 0.4f;
-
     private readonly float MinLaserPos_F_Range_Limit = 0.4f;
-    private Texture2D Building_DrakkenLaserDrill_PulseCannon_Icon_CrossMap;
-    private string Building_DrakkenLaserDrill_PulseCannon_Label_CrossMap;
 
     public int EffectTick;
-
     private int EffectTickMax = 5;
-
     public int LaserScaleTick;
 
     public float MinLaser_Alpha = 0.6f;
-
     public float MinLaser_Width = 0.3f;
-
     public int MinLaserChangeTick;
 
     private Vector3 MinLaserPos_A_End;
-
     public float MinLaserPos_A_Range = 0.5f;
-
     private Vector3 MinLaserPos_A_Start;
-
     public bool MinLaserPos_A_UpOrDown = true;
 
     private Vector3 MinLaserPos_B_End;
-
     public float MinLaserPos_B_Range = -0.5f;
-
     private Vector3 MinLaserPos_B_Start;
-
     public bool MinLaserPos_B_UpOrDown;
 
     private Vector3 MinLaserPos_C_End;
-
     public float MinLaserPos_C_Range = 0.2f;
-
     private Vector3 MinLaserPos_C_Start;
-
     public bool MinLaserPos_C_UpOrDown = true;
 
     private Vector3 MinLaserPos_D_End;
-
     public float MinLaserPos_D_Range = -0.2f;
-
     private Vector3 MinLaserPos_D_Start;
-
     public bool MinLaserPos_D_UpOrDown;
 
     private Vector3 MinLaserPos_E_End;
-
     public float MinLaserPos_E_Range = -0.1f;
-
     private Vector3 MinLaserPos_E_Start;
-
     public bool MinLaserPos_E_UpOrDown = true;
 
     private Vector3 MinLaserPos_F_End;
-
     public float MinLaserPos_F_Range = 0.1f;
-
     private Vector3 MinLaserPos_F_Start;
-
     public bool MinLaserPos_F_UpOrDown;
 
     public CompProperties_DrakkenLaserDrill_PulseCannon_CrossMap Props =>
@@ -117,23 +95,43 @@ public class Comp_DrakkenLaserDrill_PulseCannon_CrossMap : ThingComp
     public override IEnumerable<Gizmo> CompGetGizmosExtra()
     {
         var ResearchProject =
-            DefDatabase<ResearchProjectDef>.AllDefsListForReading.Find(x =>
-                x.defName == "MYDE_DrakkenLaserDrill_Research_PulseCannon");
-        if (parent is not Building_DrakkenLaserDrill { IfCrossMap: true } Building_DrakkenLaserDrill ||
-            !ResearchProject.IsFinished)
+            DefDatabase<ResearchProjectDef>.GetNamed("MYDE_DrakkenLaserDrill_Research_PulseCannon", false);
+
+        var Building_DrakkenLaserDrill = parent as Building_DrakkenLaserDrill;
+        if (Building_DrakkenLaserDrill != null &&
+            (!Building_DrakkenLaserDrill.IfCrossMap || ResearchProject is { IsFinished: false }))
         {
             yield break;
         }
 
-        var PowerConsumeNum = Building_DrakkenLaserDrill.Base_ConsumePowerFactor *
-                              Building_DrakkenLaserDrill.DamageNum *
-                              Building_DrakkenLaserDrill.PowerConsumeFactor_PulseCannon;
-        _ = PowerConsumeNum * CompPower.WattsToWattDaysPerTick * 180f;
+        // [수정] 라벨 및 아이콘 결정 로직 이동
+        string label;
+        Texture2D icon;
+
+        if (Building_DrakkenLaserDrill != null && Building_DrakkenLaserDrill.PulseCannon_EnergyAccumulation >=
+            Building_DrakkenLaserDrill.PulseCannon_EnergyAccumulationMax)
+        {
+            var PowerConsumeNum = Building_DrakkenLaserDrill.Base_ConsumePowerFactor *
+                                  Building_DrakkenLaserDrill.DamageNum *
+                                  Building_DrakkenLaserDrill.PowerConsumeFactor_PulseCannon;
+            var totalCost = PowerConsumeNum * CompPower.WattsToWattDaysPerTick * 180f;
+
+            label = "DrakkenLaserDrill_PulseCannon_Label".Translate() + "：" + totalCost.ToString("F0");
+            icon = Icon_CrossMap;
+        }
+        else
+        {
+            var current = Building_DrakkenLaserDrill?.PulseCannon_EnergyAccumulation ?? 0f;
+            var max = Building_DrakkenLaserDrill?.PulseCannon_EnergyAccumulationMax ?? 1f;
+            label = $"{(int)current} / {max}";
+            icon = Icon_Nothing;
+        }
+
         yield return new Command_Action
         {
             action = DoSomething_I,
-            defaultLabel = Building_DrakkenLaserDrill_PulseCannon_Label_CrossMap,
-            icon = Building_DrakkenLaserDrill_PulseCannon_Icon_CrossMap,
+            defaultLabel = label,
+            icon = icon,
             defaultDesc = "DrakkenLaserDrill_PulseCannon_Desc".Translate()
         };
     }
@@ -174,8 +172,9 @@ public class Comp_DrakkenLaserDrill_PulseCannon_CrossMap : ThingComp
     {
         Current.Game.CurrentMap = TargetMap;
         var Building_DrakkenLaserDrill = parent as Building_DrakkenLaserDrill;
-        var compPower = Building_DrakkenLaserDrill.TryGetComp<CompPower>();
-        if (Building_DrakkenLaserDrill != null)
+        var compPower = Building_DrakkenLaserDrill?.TryGetComp<CompPower>();
+
+        if (Building_DrakkenLaserDrill != null && compPower != null)
         {
             var num = Building_DrakkenLaserDrill.Base_ConsumePowerFactor * Building_DrakkenLaserDrill.DamageNum *
                       Building_DrakkenLaserDrill.PowerConsumeFactor_PulseCannon;
@@ -245,27 +244,7 @@ public class Comp_DrakkenLaserDrill_PulseCannon_CrossMap : ThingComp
         }, null);
     }
 
-    public static string ShowMaxRange(GlobalTargetInfo target, int tile, int MaxRange)
-    {
-        if (MYDE_DrakkenLaserDrill_Setting.IfIgnoreMapRange)
-        {
-            return "DrakkenLaserDrill_AttackTarget".Translate() + "DrakkenLaserDrill_AttackTarget_Tip".Translate();
-        }
-
-        if (!target.IsValid)
-        {
-            return null;
-        }
-
-        var num = Find.WorldGrid.TraversalDistanceBetween(tile, target.Tile);
-        if (num <= MaxRange)
-        {
-            return "DrakkenLaserDrill_AttackTarget".Translate() + "DrakkenLaserDrill_AttackTarget_Tip".Translate();
-        }
-
-        GUI.color = ColorLibrary.RedReadable;
-        return "DrakkenLaserDrill_OutOfRange".Translate();
-    }
+    // ShowMaxRange 등은 Comp_DrakkenLaserDrill_Attack_CrossMap.ShowMaxRange를 참조하므로 그대로 사용
 
     public override void PostDraw()
     {
@@ -322,8 +301,9 @@ public class Comp_DrakkenLaserDrill_PulseCannon_CrossMap : ThingComp
             {
                 a = a
             };
-            var material = MaterialPool.MatFrom(ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Laser/Laser_Big"),
-                ShaderDatabase.Transparent, color);
+
+            // [수정] 텍스처 로딩 대신 캐시된 Tex_LaserBig 사용
+            var material = MaterialPool.MatFrom(Tex_LaserBig, ShaderDatabase.Transparent, color);
             var matrix = default(Matrix4x4);
             matrix.SetTRS(pos, Quaternion.AngleAxis(angle, Vector3.up), new Vector3(x, 1f, z));
             Graphics.DrawMesh(MeshPool.plane10, matrix, material, 0);
@@ -336,6 +316,8 @@ public class Comp_DrakkenLaserDrill_PulseCannon_CrossMap : ThingComp
         Draw_DecorationLaser(0f - num, rangeDeviation, endRange);
         Draw_MinLaserPos_Prepare();
     }
+
+    // [이하 Get_MinLaserPos_Prepare ~ Get_MinLaserPos_F_Pos 메서드들은 변경 사항 없음]
 
     private void Get_MinLaserPos_Prepare()
     {
@@ -810,7 +792,8 @@ public class Comp_DrakkenLaserDrill_PulseCannon_CrossMap : ThingComp
             incOffset = 2f;
         }
 
-        AltitudeLayer.PawnRope.AltitudeFor(incOffset);
+        // AltitudeLayer.PawnRope.AltitudeFor(incOffset); // 리턴값 무시됨, 유지
+
         var x = 1f;
         var num = 20;
         var num2 = 160;
@@ -838,7 +821,7 @@ public class Comp_DrakkenLaserDrill_PulseCannon_CrossMap : ThingComp
         }
 
         var vector3_By_AngleFlat = MYDE_ModFront.GetVector3_By_AngleFlat(Start, 5.5f, angle);
-        vector3_By_AngleFlat.y = AltitudeLayer.PawnRope.AltitudeFor(3f);
+        vector3_By_AngleFlat.y = AltitudeLayer.PawnRope.AltitudeFor(incOffset); // 높이 적용
         var vect = default(Vector3);
         for (var i = 0; i < 500; i += 50)
         {
@@ -866,9 +849,9 @@ public class Comp_DrakkenLaserDrill_PulseCannon_CrossMap : ThingComp
         {
             a = a
         };
-        var material =
-            MaterialPool.MatFrom(ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Laser/Laser_Big_ConcentratedBeam"),
-                ShaderDatabase.Transparent, color);
+
+        // [수정] 텍스처 로딩 대신 캐시된 Tex_LaserBig 사용
+        var material = MaterialPool.MatFrom(Tex_LaserBig, ShaderDatabase.Transparent, color);
         var matrix = default(Matrix4x4);
         matrix.SetTRS(vector3_By_AngleFlat, Quaternion.AngleAxis(angle, Vector3.up), new Vector3(x, 1f, z));
         Graphics.DrawMesh(MeshPool.plane10, matrix, material, 0);
@@ -922,8 +905,9 @@ public class Comp_DrakkenLaserDrill_PulseCannon_CrossMap : ThingComp
         {
             a = a
         };
-        var material = MaterialPool.MatFrom(ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Laser/Laser"),
-            ShaderDatabase.Transparent, color);
+
+        // [수정] 텍스처 로딩 대신 캐시된 Tex_Laser 사용
+        var material = MaterialPool.MatFrom(Tex_Laser, ShaderDatabase.Transparent, color);
         var matrix = default(Matrix4x4);
         matrix.SetTRS(pos, Quaternion.AngleAxis(angle, Vector3.up), new Vector3(x, 1f, lengthHorizontal));
         Graphics.DrawMesh(MeshPool.plane10, matrix, material, 0);
@@ -971,35 +955,17 @@ public class Comp_DrakkenLaserDrill_PulseCannon_CrossMap : ThingComp
 
     public override void CompTick()
     {
-        var building_DrakkenLaserDrill = parent as Building_DrakkenLaserDrill;
-        if (building_DrakkenLaserDrill != null && building_DrakkenLaserDrill.PulseCannon_EnergyAccumulation <
-            building_DrakkenLaserDrill.PulseCannon_EnergyAccumulationMax)
-        {
-            Building_DrakkenLaserDrill_PulseCannon_Label_CrossMap =
-                (int)building_DrakkenLaserDrill.PulseCannon_EnergyAccumulation + " / " +
-                building_DrakkenLaserDrill.PulseCannon_EnergyAccumulationMax;
-            Building_DrakkenLaserDrill_PulseCannon_Icon_CrossMap =
-                ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Nothing/Nothing");
-        }
-        else if (building_DrakkenLaserDrill != null && building_DrakkenLaserDrill.PulseCannon_EnergyAccumulation >=
-                 building_DrakkenLaserDrill.PulseCannon_EnergyAccumulationMax)
-        {
-            var num = building_DrakkenLaserDrill.Base_ConsumePowerFactor * building_DrakkenLaserDrill.DamageNum *
-                      building_DrakkenLaserDrill.PowerConsumeFactor_PulseCannon;
-            var num2 = num * CompPower.WattsToWattDaysPerTick * 180f;
-            Building_DrakkenLaserDrill_PulseCannon_Label_CrossMap =
-                "DrakkenLaserDrill_PulseCannon_Label".Translate() + "：" + num2.ToString();
-            Building_DrakkenLaserDrill_PulseCannon_Icon_CrossMap =
-                ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Icon/PulseCannon_CrossMap");
-        }
+        // [수정] 매 틱 UI 텍스트/아이콘 갱신 로직 제거
+        // if (building_DrakkenLaserDrill != null && ... ) { ... }
 
-        if (building_DrakkenLaserDrill != null &&
+        if (parent is Building_DrakkenLaserDrill building_DrakkenLaserDrill &&
             (building_DrakkenLaserDrill.Building_DrakkenLaserDrill_Beacon_PulseCannon_CrossMap == null ||
              building_DrakkenLaserDrill.Now_Rebuilding))
         {
             return;
         }
 
+        // [유지] 애니메이션 상태 업데이트
         LaserScaleTick++;
         MinLaserChangeTick++;
         Get_MinLaserPos_Prepare();

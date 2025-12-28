@@ -9,7 +9,8 @@ namespace MYDE_DrakkenLaserDrill;
 [StaticConstructorOnStartup]
 public class Comp_DrakkenLaserDrill_Attack : ThingComp
 {
-    private Texture2D Building_DrakkenLaserDrill_Icon;
+    // [??] ???? static?? ?? (?? ???)
+    private static readonly Texture2D Icon_Beacon = ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Icon/Beacon");
 
     private IntVec3 FirstPos;
 
@@ -23,7 +24,7 @@ public class Comp_DrakkenLaserDrill_Attack : ThingComp
             {
                 action = DoSomething_I,
                 defaultLabel = "DrakkenLaserDrill_Attack_Label".Translate(),
-                icon = Building_DrakkenLaserDrill_Icon,
+                icon = Icon_Beacon,
                 defaultDesc = "DrakkenLaserDrill_Attack_Desc".Translate()
             };
         }
@@ -238,10 +239,5 @@ public class Comp_DrakkenLaserDrill_Attack : ThingComp
 
             GenDraw.DrawFieldEdges(list, Color.white);
         }, null);
-    }
-
-    public override void CompTick()
-    {
-        Building_DrakkenLaserDrill_Icon = ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Icon/Beacon");
     }
 }

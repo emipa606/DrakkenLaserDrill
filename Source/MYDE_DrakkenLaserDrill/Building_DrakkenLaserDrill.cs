@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -38,6 +38,10 @@ public class Building_DrakkenLaserDrill : Building
 
     public Building_DrakkenLaserDrill_Beacon_PulseCannon_CrossMap
         Building_DrakkenLaserDrill_Beacon_PulseCannon_CrossMap;
+
+    private CompPowerBattery cachedPowerBattery;
+
+    private CompPowerTrader cachedPowerTrader;
 
     public float Color_Blue = 3f;
 
@@ -90,6 +94,8 @@ public class Building_DrakkenLaserDrill : Building
     public override void SpawnSetup(Map map, bool respawningAfterLoad)
     {
         base.SpawnSetup(map, respawningAfterLoad);
+        cachedPowerTrader = GetComp<CompPowerTrader>();
+        cachedPowerBattery = GetComp<CompPowerBattery>();
         SetBlueBarPos();
         ChangePowerConsumeToZero();
         Set_StoredEnergyMax();
@@ -141,33 +147,38 @@ public class Building_DrakkenLaserDrill : Building
     protected override void DrawAt(Vector3 drawLoc, bool flip = false)
     {
         base.DrawAt(drawLoc, flip);
-        var power_Center_BlueBar = Power_Center_BlueBar;
-        power_Center_BlueBar.y = AltitudeLayer.PawnRope.AltitudeFor(5.1f);
+        var powerCenterBlueBar = Power_Center_BlueBar;
+        powerCenterBlueBar.y = AltitudeLayer.PawnRope.AltitudeFor(5.1f);
         var material = MaterialPool.MatFrom("DrakkenLaserDrill_Building/Blue", ShaderDatabase.Transparent);
-        var compPowerBattery = this.TryGetComp<CompPowerBattery>();
-        var storedEnergyPct = compPowerBattery.StoredEnergyPct;
+        var storedEnergyPct = cachedPowerBattery?.StoredEnergyPct ?? 0f;
         var matrix = default(Matrix4x4);
-        matrix.SetTRS(power_Center_BlueBar, Quaternion.AngleAxis(GunAngle, Vector3.up),
+        matrix.SetTRS(powerCenterBlueBar, Quaternion.AngleAxis(GunAngle, Vector3.up),
             new Vector3(1f, 1f, storedEnergyPct));
         Graphics.DrawMesh(Plane_Scale_130, matrix, material, 0);
-        if (!Now_Rebuilding)
+        switch (Now_Rebuilding)
         {
-            var drawPos = DrawPos;
-            drawPos.y = AltitudeLayer.PawnRope.AltitudeFor(5f);
-            var material2 = MaterialPool.MatFrom("DrakkenLaserDrill_Building/LaserDrill", ShaderDatabase.Transparent);
-            var matrix2 = default(Matrix4x4);
-            matrix2.SetTRS(drawPos, Quaternion.AngleAxis(GunAngle, Vector3.up), new Vector3(13f, 1f, 13f));
-            Graphics.DrawMesh(MeshPool.plane10, matrix2, material2, 0);
-        }
-        else if (Now_Rebuilding)
-        {
-            var drawPos2 = DrawPos;
-            drawPos2.y = AltitudeLayer.PawnRope.AltitudeFor(5f);
-            var material3 =
-                MaterialPool.MatFrom("DrakkenLaserDrill_Building/LaserDrill_Close", ShaderDatabase.Transparent);
-            var matrix3 = default(Matrix4x4);
-            matrix3.SetTRS(drawPos2, Quaternion.AngleAxis(GunAngle, Vector3.up), new Vector3(13f, 1f, 13f));
-            Graphics.DrawMesh(MeshPool.plane10, matrix3, material3, 0);
+            case false:
+            {
+                var drawPos = DrawPos;
+                drawPos.y = AltitudeLayer.PawnRope.AltitudeFor(5f);
+                var material2 =
+                    MaterialPool.MatFrom("DrakkenLaserDrill_Building/LaserDrill", ShaderDatabase.Transparent);
+                var matrix2 = default(Matrix4x4);
+                matrix2.SetTRS(drawPos, Quaternion.AngleAxis(GunAngle, Vector3.up), new Vector3(13f, 1f, 13f));
+                Graphics.DrawMesh(MeshPool.plane10, matrix2, material2, 0);
+                break;
+            }
+            case true:
+            {
+                var drawPos2 = DrawPos;
+                drawPos2.y = AltitudeLayer.PawnRope.AltitudeFor(5f);
+                var material3 =
+                    MaterialPool.MatFrom("DrakkenLaserDrill_Building/LaserDrill_Close", ShaderDatabase.Transparent);
+                var matrix3 = default(Matrix4x4);
+                matrix3.SetTRS(drawPos2, Quaternion.AngleAxis(GunAngle, Vector3.up), new Vector3(13f, 1f, 13f));
+                Graphics.DrawMesh(MeshPool.plane10, matrix3, material3, 0);
+                break;
+            }
         }
     }
 
@@ -202,423 +213,471 @@ public class Building_DrakkenLaserDrill : Building
 
     public void DamageTarget()
     {
-        if (!Now_Rebuilding)
+        switch (Now_Rebuilding)
         {
-            var map = TargetThing.Map;
-            if (TargetThing is Pawn pawn)
+            case false:
             {
-                if (pawn.Dead)
+                var map = TargetThing.Map;
+                switch (TargetThing)
                 {
-                    Building_DrakkenLaserDrill_Beacon.FindNextTarget(pawn);
-                    TargetThing = null;
-                    ChangePowerConsumeToZero();
-                    return;
+                    case Pawn { Dead: true } pawn:
+                        Building_DrakkenLaserDrill_Beacon.FindNextTarget(pawn);
+                        TargetThing = null;
+                        ChangePowerConsumeToZero();
+                        return;
+                    case Pawn { Downed: true } when !IfAttackDown:
+                    case Building when TargetThing.Destroyed:
+                        Building_DrakkenLaserDrill_Beacon.FindNextTarget(TargetThing);
+                        TargetThing = null;
+                        ChangePowerConsumeToZero();
+                        return;
                 }
 
-                if (pawn.Downed && !IfAttackDown)
+                // [수정] TryGetComp 삭제
+                if (cachedPowerTrader != null)
                 {
-                    Building_DrakkenLaserDrill_Beacon.FindNextTarget(TargetThing);
-                    TargetThing = null;
-                    ChangePowerConsumeToZero();
-                    return;
-                }
-            }
-            else if (TargetThing is Building && TargetThing.Destroyed)
-            {
-                Building_DrakkenLaserDrill_Beacon.FindNextTarget(TargetThing);
-                TargetThing = null;
-                ChangePowerConsumeToZero();
-                return;
-            }
-
-            var compPowerTrader = this.TryGetComp<CompPowerTrader>();
-            compPowerTrader.PowerOutput = 0f - (Base_ConsumePowerFactor * DamageNum);
-            if (compPowerTrader.PowerOn)
-            {
-                if (TargetThing is Pawn)
-                {
-                    var dinfo = new DamageInfo(DamageDefOf.Cut, DamageNum, DamageArmorPenetration, 0f, this, null, def);
-                    TargetThing.TakeDamage(dinfo);
-                }
-                else if (TargetThing is Building)
-                {
-                    if (TargetThing is Mineable mineable)
+                    cachedPowerTrader.PowerOutput = 0f - (Base_ConsumePowerFactor * DamageNum);
+                    switch (cachedPowerTrader.PowerOn)
                     {
-                        mineable.HitPoints -= (int)(DamageNum * 5f);
-                        if (mineable.HitPoints <= 0)
+                        case true when TargetThing is Pawn:
                         {
-                            if (mineable.def.building.mineableThing != null)
+                            var dinfo = new DamageInfo(DamageDefOf.Cut, DamageNum, DamageArmorPenetration, 0f, this,
+                                null,
+                                def);
+                            TargetThing.TakeDamage(dinfo);
+                            break;
+                        }
+                        case true:
+                        {
+                            if (TargetThing is Building)
                             {
-                                var num = Mathf.Max(1, mineable.def.building.EffectiveMineableYield);
-                                if (def.building.mineableYieldWasteable)
+                                if (TargetThing is Mineable mineable)
                                 {
-                                    num = Mathf.Max(1, GenMath.RoundRandom(num));
-                                }
+                                    mineable.HitPoints -= (int)(DamageNum * 5f);
+                                    if (mineable.HitPoints <= 0)
+                                    {
+                                        if (mineable.def.building.mineableThing != null)
+                                        {
+                                            var num = Mathf.Max(1, mineable.def.building.EffectiveMineableYield);
+                                            if (def.building.mineableYieldWasteable)
+                                            {
+                                                num = Mathf.Max(1, GenMath.RoundRandom(num));
+                                            }
 
-                                var thing = ThingMaker.MakeThing(mineable.def.building.mineableThing);
-                                thing.stackCount = num;
-                                GenPlace.TryPlaceThing(thing, mineable.Position, map, ThingPlaceMode.Near, null, null,
-                                    default(Rot4));
+                                            var thing = ThingMaker.MakeThing(mineable.def.building.mineableThing);
+                                            thing.stackCount = num;
+                                            GenPlace.TryPlaceThing(thing, mineable.Position, map, ThingPlaceMode.Near,
+                                                null,
+                                                null,
+                                                default(Rot4));
+                                        }
+
+                                        mineable.Destroy(DestroyMode.KillFinalize);
+                                    }
+                                }
+                                else
+                                {
+                                    var dinfo2 = new DamageInfo(DamageDefOf.Cut, DamageNum * 5f, DamageArmorPenetration,
+                                        0f,
+                                        this,
+                                        null, def);
+                                    TargetThing.TakeDamage(dinfo2);
+                                }
                             }
 
-                            mineable.Destroy(DestroyMode.KillFinalize);
+                            break;
                         }
+                        case false:
+                            DestroyAllBeacon();
+                            break;
                     }
-                    else
+                }
+
+                FleckMaker.ThrowMicroSparks(TargetThing.DrawPos, map);
+                FleckMaker.ThrowLightningGlow(TargetThing.DrawPos, map, 1.5f);
+                var num2 = (TargetThing.DrawPos - DrawPos).AngleFlat();
+                for (var i = 0; i < 5; i++)
+                {
+                    var num3 = Rand.Range(-0.3f, 0.3f);
+                    var loc = TargetThing.DrawPos + new Vector3(num3, 0f, num3);
+                    var scale = Rand.Range(0.5f, 1f);
+                    var dataStatic = FleckMaker.GetDataStatic(loc, map,
+                        MYDE_FleckDefOf.MYDE_Building_DrakkenLaserDrill_Fleck_Spark, scale);
+                    var num4 = num2 + Rand.Range(-30f, 30f);
+                    if (num4 > 180f)
                     {
-                        var dinfo2 = new DamageInfo(DamageDefOf.Cut, DamageNum * 5f, DamageArmorPenetration, 0f, this,
-                            null, def);
-                        TargetThing.TakeDamage(dinfo2);
+                        num4 = num4 - 180f + -180f;
                     }
+
+                    if (num4 < -180f)
+                    {
+                        num4 = num4 + 180f + 180f;
+                    }
+
+                    dataStatic.velocityAngle = num4;
+                    dataStatic.velocitySpeed = Rand.Range(5f, 10f);
+                    map.flecks.CreateFleck(dataStatic);
                 }
+
+                break;
             }
-            else if (!compPowerTrader.PowerOn)
-            {
+            case true:
                 DestroyAllBeacon();
-            }
-
-            FleckMaker.ThrowMicroSparks(TargetThing.DrawPos, map);
-            FleckMaker.ThrowLightningGlow(TargetThing.DrawPos, map, 1.5f);
-            var num2 = (TargetThing.DrawPos - DrawPos).AngleFlat();
-            for (var i = 0; i < 5; i++)
-            {
-                var num3 = Rand.Range(-0.3f, 0.3f);
-                var loc = TargetThing.DrawPos + new Vector3(num3, 0f, num3);
-                var scale = Rand.Range(0.5f, 1f);
-                var dataStatic = FleckMaker.GetDataStatic(loc, map,
-                    MYDE_FleckDefOf.MYDE_Building_DrakkenLaserDrill_Fleck_Spark, scale);
-                var num4 = num2 + Rand.Range(-30f, 30f);
-                if (num4 > 180f)
-                {
-                    num4 = num4 - 180f + -180f;
-                }
-
-                if (num4 < -180f)
-                {
-                    num4 = num4 + 180f + 180f;
-                }
-
-                dataStatic.velocityAngle = num4;
-                dataStatic.velocitySpeed = Rand.Range(5f, 10f);
-                map.flecks.CreateFleck(dataStatic);
-            }
-        }
-        else if (Now_Rebuilding)
-        {
-            DestroyAllBeacon();
+                break;
         }
     }
 
     public void DamagePos()
     {
-        if (!Now_Rebuilding)
+        switch (Now_Rebuilding)
         {
-            var map = Map;
-            var num = 3;
-            var compPowerTrader = this.TryGetComp<CompPowerTrader>();
-            compPowerTrader.PowerOutput = 0f - (Base_ConsumePowerFactor * DamageNum * num);
-            if (compPowerTrader.PowerOn)
+            case false:
             {
-                var list = new List<Thing>();
-                var pos_Square = MYDE_ModFront.GetPos_Square(Building_DrakkenLaserDrill_Beacon_Mouse.Position, 1, 1);
-                for (var i = 0; i < pos_Square.Count; i++)
+                var map = Map;
+                var num = 3;
+                // [수정] TryGetComp 삭제
+                if (cachedPowerTrader != null)
                 {
-                    list.AddRange(pos_Square[i].GetThingList(map));
-                }
-
-                // ReSharper disable once ForCanBeConvertedToForeach
-                for (var j = 0; j < list.Count; j++)
-                {
-                    if (list[j] is not Building)
+                    cachedPowerTrader.PowerOutput = 0f - (Base_ConsumePowerFactor * DamageNum * num);
+                    switch (cachedPowerTrader.PowerOn)
                     {
-                        var dinfo = new DamageInfo(DamageDefOf.Cut, DamageNum, DamageArmorPenetration, 0f, this, null,
-                            def);
-                        list[j].TakeDamage(dinfo);
-                    }
-                    else
-                    {
-                        if (list[j] is not Building)
+                        case true:
                         {
-                            continue;
-                        }
-
-                        if (list[j] is Mineable)
-                        {
-                            list[j].HitPoints -= (int)(DamageNum * 5f);
-                            if (list[j].HitPoints > 0)
+                            var list = new List<Thing>();
+                            var pos_Square =
+                                MYDE_ModFront.GetPos_Square(Building_DrakkenLaserDrill_Beacon_Mouse.Position, 1, 1);
+                            for (var i = 0; i < pos_Square.Count; i++)
                             {
-                                continue;
+                                list.AddRange(pos_Square[i].GetThingList(map));
                             }
 
-                            var mineable = list[j] as Mineable;
-                            if (mineable?.def.building.mineableThing != null)
+                            // ReSharper disable once ForCanBeConvertedToForeach
+                            for (var j = 0; j < list.Count; j++)
                             {
-                                var num2 = Mathf.Max(1, mineable.def.building.EffectiveMineableYield);
-                                if (def.building.mineableYieldWasteable)
+                                if (list[j] is not Building)
                                 {
-                                    num2 = Mathf.Max(1, GenMath.RoundRandom(num2));
+                                    var dinfo = new DamageInfo(DamageDefOf.Cut, DamageNum, DamageArmorPenetration, 0f,
+                                        this,
+                                        null,
+                                        def);
+                                    list[j].TakeDamage(dinfo);
                                 }
+                                else
+                                {
+                                    if (list[j] is not Building)
+                                    {
+                                        continue;
+                                    }
 
-                                var thing = ThingMaker.MakeThing(mineable.def.building.mineableThing);
-                                thing.stackCount = num2;
-                                GenPlace.TryPlaceThing(thing, mineable.Position, Map, ThingPlaceMode.Near, null, null,
-                                    default(Rot4));
+                                    if (list[j] is Mineable)
+                                    {
+                                        list[j].HitPoints -= (int)(DamageNum * 5f);
+                                        if (list[j].HitPoints > 0)
+                                        {
+                                            continue;
+                                        }
+
+                                        var mineable = list[j] as Mineable;
+                                        if (mineable?.def.building.mineableThing != null)
+                                        {
+                                            var num2 = Mathf.Max(1, mineable.def.building.EffectiveMineableYield);
+                                            if (def.building.mineableYieldWasteable)
+                                            {
+                                                num2 = Mathf.Max(1, GenMath.RoundRandom(num2));
+                                            }
+
+                                            var thing = ThingMaker.MakeThing(mineable.def.building.mineableThing);
+                                            thing.stackCount = num2;
+                                            GenPlace.TryPlaceThing(thing, mineable.Position, Map, ThingPlaceMode.Near,
+                                                null,
+                                                null,
+                                                default(Rot4));
+                                        }
+
+                                        mineable?.Destroy(DestroyMode.KillFinalize);
+                                    }
+                                    else
+                                    {
+                                        var dinfo2 = new DamageInfo(DamageDefOf.Cut, DamageNum * 5f,
+                                            DamageArmorPenetration, 0f,
+                                            this, null, def);
+                                        list[j].TakeDamage(dinfo2);
+                                    }
+                                }
                             }
 
-                            mineable?.Destroy(DestroyMode.KillFinalize);
+                            break;
                         }
-                        else
-                        {
-                            var dinfo2 = new DamageInfo(DamageDefOf.Cut, DamageNum * 5f, DamageArmorPenetration, 0f,
-                                this, null, def);
-                            list[j].TakeDamage(dinfo2);
-                        }
+                        case false:
+                            DestroyAllBeacon();
+                            break;
                     }
                 }
-            }
-            else if (!compPowerTrader.PowerOn)
-            {
-                DestroyAllBeacon();
-            }
 
-            FleckMaker.ThrowMicroSparks(Building_DrakkenLaserDrill_Beacon_Mouse.DrawPos, Map);
-            FleckMaker.ThrowLightningGlow(Building_DrakkenLaserDrill_Beacon_Mouse.DrawPos, Map, 1.5f);
-            for (var k = 0; k < 10; k++)
-            {
-                var num3 = Rand.Range(-0.3f, 0.3f);
-                var loc = Building_DrakkenLaserDrill_Beacon_Mouse.DrawPos + new Vector3(num3, 0f, num3);
-                var scale = Rand.Range(0.5f, 1f);
-                var dataStatic = FleckMaker.GetDataStatic(loc, Map,
-                    MYDE_FleckDefOf.MYDE_Building_DrakkenLaserDrill_Fleck_Spark, scale);
-                var velocityAngle = Rand.Range(-180f, 180f);
-                dataStatic.velocityAngle = velocityAngle;
-                dataStatic.velocitySpeed = Rand.Range(5f, 10f);
-                Map.flecks.CreateFleck(dataStatic);
+                FleckMaker.ThrowMicroSparks(Building_DrakkenLaserDrill_Beacon_Mouse.DrawPos, Map);
+                FleckMaker.ThrowLightningGlow(Building_DrakkenLaserDrill_Beacon_Mouse.DrawPos, Map, 1.5f);
+                for (var k = 0; k < 10; k++)
+                {
+                    var num3 = Rand.Range(-0.3f, 0.3f);
+                    var loc = Building_DrakkenLaserDrill_Beacon_Mouse.DrawPos + new Vector3(num3, 0f, num3);
+                    var scale = Rand.Range(0.5f, 1f);
+                    var dataStatic = FleckMaker.GetDataStatic(loc, Map,
+                        MYDE_FleckDefOf.MYDE_Building_DrakkenLaserDrill_Fleck_Spark, scale);
+                    var velocityAngle = Rand.Range(-180f, 180f);
+                    dataStatic.velocityAngle = velocityAngle;
+                    dataStatic.velocitySpeed = Rand.Range(5f, 10f);
+                    Map.flecks.CreateFleck(dataStatic);
+                }
+
+                break;
             }
-        }
-        else if (Now_Rebuilding)
-        {
-            DestroyAllBeacon();
+            case true:
+                DestroyAllBeacon();
+                break;
         }
     }
 
     public void DamageTarget_CrossMap()
     {
-        if (!Now_Rebuilding)
+        switch (Now_Rebuilding)
         {
-            var map = TargetThing.Map;
-            if (TargetThing is Pawn pawn)
+            case false:
             {
-                if (pawn.Dead)
+                var map = TargetThing.Map;
+                switch (TargetThing)
                 {
-                    Building_DrakkenLaserDrill_Beacon_CrossMap.FindNextTarget(pawn);
-                    TargetThing = null;
-                    ChangePowerConsumeToZero();
-                    return;
+                    case Pawn { Dead: true } pawn:
+                        Building_DrakkenLaserDrill_Beacon_CrossMap.FindNextTarget(pawn);
+                        TargetThing = null;
+                        ChangePowerConsumeToZero();
+                        return;
+                    case Pawn { Downed: true } when !IfAttackDown:
+                    case Building when TargetThing.Destroyed:
+                        Building_DrakkenLaserDrill_Beacon_CrossMap.FindNextTarget(TargetThing);
+                        TargetThing = null;
+                        ChangePowerConsumeToZero();
+                        return;
                 }
 
-                if (pawn.Downed && !IfAttackDown)
+                // [수정] TryGetComp 삭제
+                if (cachedPowerTrader != null)
                 {
-                    Building_DrakkenLaserDrill_Beacon_CrossMap.FindNextTarget(TargetThing);
-                    TargetThing = null;
-                    ChangePowerConsumeToZero();
-                    return;
-                }
-            }
-            else if (TargetThing is Building && TargetThing.Destroyed)
-            {
-                Building_DrakkenLaserDrill_Beacon_CrossMap.FindNextTarget(TargetThing);
-                TargetThing = null;
-                ChangePowerConsumeToZero();
-                return;
-            }
-
-            var compPowerTrader = this.TryGetComp<CompPowerTrader>();
-            compPowerTrader.PowerOutput = 0f - (Base_ConsumePowerFactor * DamageNum);
-            if (compPowerTrader.PowerOn)
-            {
-                if (TargetThing is Pawn)
-                {
-                    var dinfo = new DamageInfo(DamageDefOf.Cut, DamageNum, DamageArmorPenetration, 0f, this, null, def);
-                    TargetThing.TakeDamage(dinfo);
-                }
-                else if (TargetThing is Building)
-                {
-                    if (TargetThing is Mineable mineable)
+                    cachedPowerTrader.PowerOutput = 0f - (Base_ConsumePowerFactor * DamageNum);
+                    switch (cachedPowerTrader.PowerOn)
                     {
-                        mineable.HitPoints -= (int)(DamageNum * 5f);
-                        if (mineable.HitPoints <= 0)
+                        case true when TargetThing is Pawn:
                         {
-                            if (mineable.def.building.mineableThing != null)
+                            var dinfo = new DamageInfo(DamageDefOf.Cut, DamageNum, DamageArmorPenetration, 0f, this,
+                                null,
+                                def);
+                            TargetThing.TakeDamage(dinfo);
+                            break;
+                        }
+                        case true:
+                        {
+                            if (TargetThing is Building)
                             {
-                                var num = Mathf.Max(1, mineable.def.building.EffectiveMineableYield);
-                                if (def.building.mineableYieldWasteable)
+                                if (TargetThing is Mineable mineable)
                                 {
-                                    num = Mathf.Max(1, GenMath.RoundRandom(num));
-                                }
+                                    mineable.HitPoints -= (int)(DamageNum * 5f);
+                                    if (mineable.HitPoints <= 0)
+                                    {
+                                        if (mineable.def.building.mineableThing != null)
+                                        {
+                                            var num = Mathf.Max(1, mineable.def.building.EffectiveMineableYield);
+                                            if (def.building.mineableYieldWasteable)
+                                            {
+                                                num = Mathf.Max(1, GenMath.RoundRandom(num));
+                                            }
 
-                                var thing = ThingMaker.MakeThing(mineable.def.building.mineableThing);
-                                thing.stackCount = num;
-                                GenPlace.TryPlaceThing(thing, mineable.Position, map, ThingPlaceMode.Near, null, null,
-                                    default(Rot4));
+                                            var thing = ThingMaker.MakeThing(mineable.def.building.mineableThing);
+                                            thing.stackCount = num;
+                                            GenPlace.TryPlaceThing(thing, mineable.Position, map, ThingPlaceMode.Near,
+                                                null,
+                                                null,
+                                                default(Rot4));
+                                        }
+
+                                        mineable.Destroy(DestroyMode.KillFinalize);
+                                    }
+                                }
+                                else
+                                {
+                                    var dinfo2 = new DamageInfo(DamageDefOf.Cut, DamageNum * 5f, DamageArmorPenetration,
+                                        0f,
+                                        this,
+                                        null, def);
+                                    TargetThing.TakeDamage(dinfo2);
+                                }
                             }
 
-                            mineable.Destroy(DestroyMode.KillFinalize);
+                            break;
                         }
+                        case false:
+                            DestroyAllBeacon();
+                            break;
                     }
-                    else
+                }
+
+                FleckMaker.ThrowMicroSparks(TargetThing.DrawPos, map);
+                FleckMaker.ThrowLightningGlow(TargetThing.DrawPos, map, 1.5f);
+                var num2 = (TargetThing.DrawPos - DrawPos).AngleFlat();
+                for (var i = 0; i < 5; i++)
+                {
+                    var num3 = Rand.Range(-0.3f, 0.3f);
+                    var loc = TargetThing.DrawPos + new Vector3(num3, 0f, num3);
+                    var scale = Rand.Range(0.5f, 1f);
+                    var dataStatic = FleckMaker.GetDataStatic(loc, map,
+                        MYDE_FleckDefOf.MYDE_Building_DrakkenLaserDrill_Fleck_Spark, scale);
+                    var num4 = num2 + Rand.Range(-30f, 30f);
+                    if (num4 > 180f)
                     {
-                        var dinfo2 = new DamageInfo(DamageDefOf.Cut, DamageNum * 5f, DamageArmorPenetration, 0f, this,
-                            null, def);
-                        TargetThing.TakeDamage(dinfo2);
+                        num4 = num4 - 180f + -180f;
                     }
+
+                    if (num4 < -180f)
+                    {
+                        num4 = num4 + 180f + 180f;
+                    }
+
+                    dataStatic.velocityAngle = num4;
+                    dataStatic.velocitySpeed = Rand.Range(5f, 10f);
+                    map.flecks.CreateFleck(dataStatic);
                 }
+
+                break;
             }
-            else if (!compPowerTrader.PowerOn)
-            {
+            case true:
                 DestroyAllBeacon();
-            }
-
-            FleckMaker.ThrowMicroSparks(TargetThing.DrawPos, map);
-            FleckMaker.ThrowLightningGlow(TargetThing.DrawPos, map, 1.5f);
-            var num2 = (TargetThing.DrawPos - DrawPos).AngleFlat();
-            for (var i = 0; i < 5; i++)
-            {
-                var num3 = Rand.Range(-0.3f, 0.3f);
-                var loc = TargetThing.DrawPos + new Vector3(num3, 0f, num3);
-                var scale = Rand.Range(0.5f, 1f);
-                var dataStatic = FleckMaker.GetDataStatic(loc, map,
-                    MYDE_FleckDefOf.MYDE_Building_DrakkenLaserDrill_Fleck_Spark, scale);
-                var num4 = num2 + Rand.Range(-30f, 30f);
-                if (num4 > 180f)
-                {
-                    num4 = num4 - 180f + -180f;
-                }
-
-                if (num4 < -180f)
-                {
-                    num4 = num4 + 180f + 180f;
-                }
-
-                dataStatic.velocityAngle = num4;
-                dataStatic.velocitySpeed = Rand.Range(5f, 10f);
-                map.flecks.CreateFleck(dataStatic);
-            }
-        }
-        else if (Now_Rebuilding)
-        {
-            DestroyAllBeacon();
+                break;
         }
     }
 
     public void DamagePos_CrossMap()
     {
-        if (!Now_Rebuilding)
+        switch (Now_Rebuilding)
         {
-            var map = Building_DrakkenLaserDrill_Beacon_Mouse_CrossMap.Map;
-            var num = 3;
-            var compPowerTrader = this.TryGetComp<CompPowerTrader>();
-            compPowerTrader.PowerOutput = 0f - (Base_ConsumePowerFactor * DamageNum * num);
-            if (compPowerTrader.PowerOn)
+            case false:
             {
-                var list = new List<Thing>();
-                var pos_Square =
-                    MYDE_ModFront.GetPos_Square(Building_DrakkenLaserDrill_Beacon_Mouse_CrossMap.Position, 1, 1);
-                for (var i = 0; i < pos_Square.Count; i++)
+                var map = Building_DrakkenLaserDrill_Beacon_Mouse_CrossMap.Map;
+                var num = 3;
+                // [수정] TryGetComp 삭제
+                if (cachedPowerTrader != null)
                 {
-                    list.AddRange(pos_Square[i].GetThingList(map));
-                }
-
-                // ReSharper disable once ForCanBeConvertedToForeach
-                for (var j = 0; j < list.Count; j++)
-                {
-                    if (list[j] is not Building)
+                    cachedPowerTrader.PowerOutput = 0f - (Base_ConsumePowerFactor * DamageNum * num);
+                    switch (cachedPowerTrader.PowerOn)
                     {
-                        var dinfo = new DamageInfo(DamageDefOf.Cut, DamageNum, DamageArmorPenetration, 0f, this, null,
-                            def);
-                        list[j].TakeDamage(dinfo);
-                    }
-                    else
-                    {
-                        if (list[j] is not Building)
+                        case true:
                         {
-                            continue;
-                        }
-
-                        if (list[j] is Mineable)
-                        {
-                            list[j].HitPoints -= (int)(DamageNum * 5f);
-                            if (list[j].HitPoints > 0)
+                            var list = new List<Thing>();
+                            var pos_Square =
+                                MYDE_ModFront.GetPos_Square(Building_DrakkenLaserDrill_Beacon_Mouse_CrossMap.Position,
+                                    1, 1);
+                            for (var i = 0; i < pos_Square.Count; i++)
                             {
-                                continue;
+                                list.AddRange(pos_Square[i].GetThingList(map));
                             }
 
-                            var mineable = list[j] as Mineable;
-                            if (mineable?.def.building.mineableThing != null)
+                            // ReSharper disable once ForCanBeConvertedToForeach
+                            for (var j = 0; j < list.Count; j++)
                             {
-                                var num2 = Mathf.Max(1, mineable.def.building.EffectiveMineableYield);
-                                if (def.building.mineableYieldWasteable)
+                                if (list[j] is not Building)
                                 {
-                                    num2 = Mathf.Max(1, GenMath.RoundRandom(num2));
+                                    var dinfo = new DamageInfo(DamageDefOf.Cut, DamageNum, DamageArmorPenetration, 0f,
+                                        this,
+                                        null,
+                                        def);
+                                    list[j].TakeDamage(dinfo);
                                 }
+                                else
+                                {
+                                    if (list[j] is not Building)
+                                    {
+                                        continue;
+                                    }
 
-                                var thing = ThingMaker.MakeThing(mineable.def.building.mineableThing);
-                                thing.stackCount = num2;
-                                GenPlace.TryPlaceThing(thing, mineable.Position, Map, ThingPlaceMode.Near, null, null,
-                                    default(Rot4));
+                                    if (list[j] is Mineable)
+                                    {
+                                        list[j].HitPoints -= (int)(DamageNum * 5f);
+                                        if (list[j].HitPoints > 0)
+                                        {
+                                            continue;
+                                        }
+
+                                        var mineable = list[j] as Mineable;
+                                        if (mineable?.def.building.mineableThing != null)
+                                        {
+                                            var num2 = Mathf.Max(1, mineable.def.building.EffectiveMineableYield);
+                                            if (def.building.mineableYieldWasteable)
+                                            {
+                                                num2 = Mathf.Max(1, GenMath.RoundRandom(num2));
+                                            }
+
+                                            var thing = ThingMaker.MakeThing(mineable.def.building.mineableThing);
+                                            thing.stackCount = num2;
+                                            GenPlace.TryPlaceThing(thing, mineable.Position, Map, ThingPlaceMode.Near,
+                                                null,
+                                                null,
+                                                default(Rot4));
+                                        }
+
+                                        mineable?.Destroy(DestroyMode.KillFinalize);
+                                    }
+                                    else
+                                    {
+                                        var dinfo2 = new DamageInfo(DamageDefOf.Cut, DamageNum * 5f,
+                                            DamageArmorPenetration, 0f,
+                                            this, null, def);
+                                        list[j].TakeDamage(dinfo2);
+                                    }
+                                }
                             }
 
-                            mineable?.Destroy(DestroyMode.KillFinalize);
+                            break;
                         }
-                        else
-                        {
-                            var dinfo2 = new DamageInfo(DamageDefOf.Cut, DamageNum * 5f, DamageArmorPenetration, 0f,
-                                this, null, def);
-                            list[j].TakeDamage(dinfo2);
-                        }
+                        case false:
+                            DestroyAllBeacon();
+                            break;
                     }
                 }
-            }
-            else if (!compPowerTrader.PowerOn)
-            {
-                DestroyAllBeacon();
-            }
 
-            FleckMaker.ThrowMicroSparks(Building_DrakkenLaserDrill_Beacon_Mouse_CrossMap.DrawPos, map);
-            FleckMaker.ThrowLightningGlow(Building_DrakkenLaserDrill_Beacon_Mouse_CrossMap.DrawPos, map, 1.5f);
-            for (var k = 0; k < 10; k++)
-            {
-                var num3 = Rand.Range(-0.3f, 0.3f);
-                var loc = Building_DrakkenLaserDrill_Beacon_Mouse_CrossMap.DrawPos + new Vector3(num3, 0f, num3);
-                var scale = Rand.Range(0.5f, 1f);
-                var dataStatic = FleckMaker.GetDataStatic(loc, map,
-                    MYDE_FleckDefOf.MYDE_Building_DrakkenLaserDrill_Fleck_Spark, scale);
-                var velocityAngle = Rand.Range(-180f, 180f);
-                dataStatic.velocityAngle = velocityAngle;
-                dataStatic.velocitySpeed = Rand.Range(5f, 10f);
-                map.flecks.CreateFleck(dataStatic);
+                FleckMaker.ThrowMicroSparks(Building_DrakkenLaserDrill_Beacon_Mouse_CrossMap.DrawPos, map);
+                FleckMaker.ThrowLightningGlow(Building_DrakkenLaserDrill_Beacon_Mouse_CrossMap.DrawPos, map, 1.5f);
+                for (var k = 0; k < 10; k++)
+                {
+                    var num3 = Rand.Range(-0.3f, 0.3f);
+                    var loc = Building_DrakkenLaserDrill_Beacon_Mouse_CrossMap.DrawPos + new Vector3(num3, 0f, num3);
+                    var scale = Rand.Range(0.5f, 1f);
+                    var dataStatic = FleckMaker.GetDataStatic(loc, map,
+                        MYDE_FleckDefOf.MYDE_Building_DrakkenLaserDrill_Fleck_Spark, scale);
+                    var velocityAngle = Rand.Range(-180f, 180f);
+                    dataStatic.velocityAngle = velocityAngle;
+                    dataStatic.velocitySpeed = Rand.Range(5f, 10f);
+                    map.flecks.CreateFleck(dataStatic);
+                }
+
+                break;
             }
-        }
-        else if (Now_Rebuilding)
-        {
-            DestroyAllBeacon();
+            case true:
+                DestroyAllBeacon();
+                break;
         }
     }
 
     public override void Destroy(DestroyMode mode = DestroyMode.Vanish)
     {
-        if (HitPoints <= 1 && IfImmunity)
+        switch (HitPoints)
         {
-            HitPoints = 1;
-        }
-        else if (HitPoints <= 1)
-        {
-            Now_Rebuilding = true;
-            HitPoints = 1;
-        }
-        else
-        {
-            base.Destroy(mode);
+            case <= 1 when IfImmunity:
+                HitPoints = 1;
+                break;
+            case <= 1:
+                Now_Rebuilding = true;
+                HitPoints = 1;
+                break;
+            default:
+                base.Destroy(mode);
+                break;
         }
     }
 
@@ -659,8 +718,8 @@ public class Building_DrakkenLaserDrill : Building
 
     public void ChangePowerConsumeToZero()
     {
-        var compPowerTrader = this.TryGetComp<CompPowerTrader>();
-        compPowerTrader.PowerOutput = 0f;
+        // [수정] TryGetComp 삭제
+        cachedPowerTrader?.PowerOutput = 0f;
     }
 
     public void SetBlueBarPos()
@@ -685,8 +744,7 @@ public class Building_DrakkenLaserDrill : Building
             }
         }
 
-        var compPowerBattery = this.TryGetComp<CompPowerBattery>();
-        compPowerBattery.Props.storedEnergyMax = StoredEnergyMax;
+        cachedPowerBattery?.Props.storedEnergyMax = StoredEnergyMax;
     }
 
     public void Check_Highest_DamageNumMax()
@@ -727,14 +785,14 @@ public class Building_DrakkenLaserDrill : Building
 
     private void Add_PulseCannon_EnergyAccumulation()
     {
-        var compPowerTrader = this.TryGetComp<CompPowerTrader>();
-        if (!(compPowerTrader.PowerOutput < 0f) || IfImmunity)
+        // [수정] TryGetComp 삭제. cachedPowerTrader 사용
+        if (cachedPowerTrader is not { PowerOutput: < 0f } || IfImmunity)
         {
             return;
         }
 
         PulseCannon_EnergyAccumulation +=
-            0f - (compPowerTrader.PowerOutput * CompPower.WattsToWattDaysPerTick / 1f);
+            0f - (cachedPowerTrader.PowerOutput * CompPower.WattsToWattDaysPerTick / 1f);
         if (PulseCannon_EnergyAccumulation > PulseCannon_EnergyAccumulationMax)
         {
             PulseCannon_EnergyAccumulation = PulseCannon_EnergyAccumulationMax;
@@ -743,14 +801,14 @@ public class Building_DrakkenLaserDrill : Building
 
     private void Add_ConcentratedBeam_EnergyAccumulation()
     {
-        var compPowerTrader = this.TryGetComp<CompPowerTrader>();
-        if (!(compPowerTrader.PowerOutput < 0f) || IfImmunity)
+        // [수정] TryGetComp 삭제. cachedPowerTrader 사용
+        if (cachedPowerTrader is not { PowerOutput: < 0f } || IfImmunity)
         {
             return;
         }
 
         ConcentratedBeam_EnergyAccumulation +=
-            0f - (compPowerTrader.PowerOutput * CompPower.WattsToWattDaysPerTick / 1f);
+            0f - (cachedPowerTrader.PowerOutput * CompPower.WattsToWattDaysPerTick / 1f);
         if (ConcentratedBeam_EnergyAccumulation > ConcentratedBeam_EnergyAccumulationMax)
         {
             ConcentratedBeam_EnergyAccumulation = ConcentratedBeam_EnergyAccumulationMax;

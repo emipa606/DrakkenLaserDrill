@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -8,11 +8,9 @@ namespace MYDE_DrakkenLaserDrill;
 [StaticConstructorOnStartup]
 public class Comp_DrakkenLaserDrill_AutoAttack : ThingComp
 {
-    private Texture2D Building_DrakkenLaserDrill_AllAttack_Icon;
-
-    private Texture2D Building_DrakkenLaserDrill_AutoAttack_Icon;
-
-    private string Building_DrakkenLaserDrill_AutoAttack_Label;
+    private static readonly Texture2D Icon_AllAttack = ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Icon/AllAttack");
+    private static readonly Texture2D Icon_Auto = ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Icon/Auto");
+    private static readonly Texture2D Icon_False = ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Icon/False");
 
     private int EnemyComeTick;
 
@@ -44,14 +42,21 @@ public class Comp_DrakkenLaserDrill_AutoAttack : ThingComp
         {
             action = DoSomething_AttackAllPawn,
             defaultLabel = "DrakkenLaserDrill_AllAttack_Label".Translate(),
-            icon = Building_DrakkenLaserDrill_AllAttack_Icon,
+            icon = Icon_AllAttack,
             defaultDesc = "DrakkenLaserDrill_AllAttack_Desc".Translate()
         };
+
+        // 상태에 따라 아이콘과 라벨을 동적으로 결정
+        var currentIcon = IfAutoSwitch ? Icon_Auto : Icon_False;
+        string currentLabel = IfAutoSwitch
+            ? "DrakkenLaserDrill_AutoAttack_True_Label".Translate()
+            : "DrakkenLaserDrill_AutoAttack_False_Label".Translate();
+
         yield return new Command_Action
         {
             action = DoSomething_AutoSwitch,
-            defaultLabel = Building_DrakkenLaserDrill_AutoAttack_Label,
-            icon = Building_DrakkenLaserDrill_AutoAttack_Icon,
+            defaultLabel = currentLabel,
+            icon = currentIcon,
             defaultDesc = "DrakkenLaserDrill_AutoAttack_Desc".Translate()
         };
     }
@@ -187,21 +192,6 @@ public class Comp_DrakkenLaserDrill_AutoAttack : ThingComp
 
     public override void CompTick()
     {
-        Building_DrakkenLaserDrill_AllAttack_Icon = ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Icon/AllAttack");
-        switch (IfAutoSwitch)
-        {
-            case true:
-                Building_DrakkenLaserDrill_AutoAttack_Icon =
-                    ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Icon/Auto");
-                Building_DrakkenLaserDrill_AutoAttack_Label = "DrakkenLaserDrill_AutoAttack_True_Label".Translate();
-                break;
-            case false:
-                Building_DrakkenLaserDrill_AutoAttack_Icon =
-                    ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Icon/False");
-                Building_DrakkenLaserDrill_AutoAttack_Label = "DrakkenLaserDrill_AutoAttack_False_Label".Translate();
-                break;
-        }
-
         if (!IfEnemyCome)
         {
             return;

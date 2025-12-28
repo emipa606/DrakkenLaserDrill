@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LanguageData>
+  <!-- EN: Armor Penetration + 10% -->
+  <MYDE_DrakkenLaserDrill_Research_ArmorPenetration.label>방어구 관통 + 10%</MYDE_DrakkenLaserDrill_Research_ArmorPenetration.label>
+  <!-- EN: The maximum armor penetration of all Draken Laser Drills on the current map increases by 10% -->
+  <MYDE_DrakkenLaserDrill_Research_ArmorPenetration.description>현재 지도에 있는 드라켄 레이저 천공기의 방어구 관통이 10%증가합니다</MYDE_DrakkenLaserDrill_Research_ArmorPenetration.description>
+  <!-- EN: Drakken Laser Drill -->
+  <MYDE_DrakkenLaserDrill_Research_Base.label>드라켄 레이저 천공기</MYDE_DrakkenLaserDrill_Research_Base.label>
+  <!-- EN: Unlock the construction of Draken Laser Drill -->
+  <MYDE_DrakkenLaserDrill_Research_Base.description>드라켄 레이저 천공기를 건설할 수 있습니다</MYDE_DrakkenLaserDrill_Research_Base.description>
+  <!-- EN: Concentrated Beam -->
+  <MYDE_DrakkenLaserDrill_Research_ConcentratedBeam.label>집중 광선</MYDE_DrakkenLaserDrill_Research_ConcentratedBeam.label>
+  <!-- EN: Unlock the Concentrated Beam skill of Draken Laser Drill (Charging Max: 3000) (consume a certain amount of power and cause 22 times of basic damage) -->
+  <MYDE_DrakkenLaserDrill_Research_ConcentratedBeam.description>드라켄 레이저 천공기의 집중광선 기술을 해제합니다 (최대충전 : 3000) (일정량의 전력을 소모하여 기본 데미지의 22배의 피해를 입힙니다)</MYDE_DrakkenLaserDrill_Research_ConcentratedBeam.description>
+  <!-- EN: Damage + 1 -->
+  <MYDE_DrakkenLaserDrill_Research_Damage.label>데미지 + 1</MYDE_DrakkenLaserDrill_Research_Damage.label>
+  <!-- EN: The maximum damage of all Draken laser drills on the current map increased by 1 -->
+  <MYDE_DrakkenLaserDrill_Research_Damage.description>현재 지도에 있는 드라켄 레이저 천공기의 최대 데미지가 1증가합니다</MYDE_DrakkenLaserDrill_Research_Damage.description>
+  <!-- EN: Pulse Cannon -->
+  <MYDE_DrakkenLaserDrill_Research_PulseCannon.label>파동포</MYDE_DrakkenLaserDrill_Research_PulseCannon.label>
+  <!-- EN: Unlock the Pulse Cannon skill of Draken Laser Drill (Charging Max: 5000) (consume a certain amount of power and cause 46 times of basic damage) -->
+  <MYDE_DrakkenLaserDrill_Research_PulseCannon.description>드라켄 레이저 천공기의 파동포 기술을 해제합니다 (최대충전 : 5000) (일정량의 전력을 소모하여 기본 데미지의 46배의 피해를 입힙니다)</MYDE_DrakkenLaserDrill_Research_PulseCannon.description>
+  <!-- EN: Stored Energy Max + 500 -->
+  <MYDE_DrakkenLaserDrill_Research_StoredEnergyMax.label>최대 에너지 저장 + 500</MYDE_DrakkenLaserDrill_Research_StoredEnergyMax.label>
+  <!-- EN: The maximum power storage of all Draken Laser Drills on the current map is increased by 500 -->
+  <MYDE_DrakkenLaserDrill_Research_StoredEnergyMax.description>현재 지도에 있는 드라켄 레이저 천공기의 최대 전력 저장량이 500증가 합니다</MYDE_DrakkenLaserDrill_Research_StoredEnergyMax.description>
+</LanguageData>

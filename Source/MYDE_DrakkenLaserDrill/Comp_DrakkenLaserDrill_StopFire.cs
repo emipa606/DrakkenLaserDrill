@@ -1,12 +1,14 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using Verse;
 
 namespace MYDE_DrakkenLaserDrill;
 
+[StaticConstructorOnStartup]
 public class Comp_DrakkenLaserDrill_StopFire : ThingComp
 {
-    private Texture2D DrakkenLaserDrill_StopFire_Icon;
+    // [수정] 텍스처 캐싱 (성능 최적화)
+    private static readonly Texture2D Icon_Destroy = ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Icon/Destroy");
 
     public CompProperties_DrakkenLaserDrill_StopFire Props => props as CompProperties_DrakkenLaserDrill_StopFire;
 
@@ -17,7 +19,7 @@ public class Comp_DrakkenLaserDrill_StopFire : ThingComp
             action = DoSomething,
             defaultLabel = "DrakkenLaserDrill_StopFire_Label".Translate(),
             defaultDesc = "DrakkenLaserDrill_StopFire_Desc".Translate(),
-            icon = DrakkenLaserDrill_StopFire_Icon
+            icon = Icon_Destroy // [수정] 캐시된 아이콘 사용
         };
     }
 
@@ -27,9 +29,5 @@ public class Comp_DrakkenLaserDrill_StopFire : ThingComp
         building_DrakkenLaserDrill?.DestroyAllBeacon();
     }
 
-    public override void CompTick()
-    {
-        base.CompTick();
-        DrakkenLaserDrill_StopFire_Icon = ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Icon/Destroy");
-    }
+    // [수정] CompTick 삭제됨
 }

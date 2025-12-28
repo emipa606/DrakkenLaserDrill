@@ -7,8 +7,17 @@ using Verse;
 
 namespace MYDE_DrakkenLaserDrill;
 
+[StaticConstructorOnStartup]
 public class Comp_DrakkenLaserDrill_Attack_CrossMap : ThingComp
 {
+    // [??] ??? ?? (?? ???) - ??? ? ??? ???
+    private static readonly Texture2D Icon_CrossMap =
+        ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Icon/Beacon_CrossMap");
+
+    private static readonly Texture2D Icon_AllAttack =
+        ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Icon/AllAttack _CrossMap");
+
+    private static readonly Texture2D Tex_Laser = ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Laser/Laser");
     private readonly float MinLaser_Alpha = 0.6f;
 
     private readonly float MinLaser_Width = 0.3f;
@@ -24,8 +33,6 @@ public class Comp_DrakkenLaserDrill_Attack_CrossMap : ThingComp
     private readonly float MinLaserPos_E_Range_Limit = 0.4f;
 
     private readonly float MinLaserPos_F_Range_Limit = 0.4f;
-    private Texture2D Building_DrakkenLaserDrill_Icon_AllAttack_CrossMap;
-    private Texture2D Building_DrakkenLaserDrill_Icon_CrossMap;
 
     private IntVec3 FirstPos;
 
@@ -108,14 +115,14 @@ public class Comp_DrakkenLaserDrill_Attack_CrossMap : ThingComp
         {
             action = DoSomething_I,
             defaultLabel = "DrakkenLaserDrill_Attack_Label".Translate(),
-            icon = Building_DrakkenLaserDrill_Icon_CrossMap,
+            icon = Icon_CrossMap,
             defaultDesc = "DrakkenLaserDrill_Attack_Desc".Translate()
         };
         yield return new Command_Action
         {
             action = DoSomething_I_AllAttack,
             defaultLabel = "DrakkenLaserDrill_AllAttack_Label".Translate(),
-            icon = Building_DrakkenLaserDrill_Icon_AllAttack_CrossMap,
+            icon = Icon_AllAttack,
             defaultDesc = "DrakkenLaserDrill_AllAttack_Desc".Translate()
         };
     }
@@ -542,8 +549,7 @@ public class Comp_DrakkenLaserDrill_Attack_CrossMap : ThingComp
             {
                 a = a
             };
-            var material = MaterialPool.MatFrom(ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Laser/Laser"),
-                ShaderDatabase.Transparent, color);
+            var material = MaterialPool.MatFrom(Tex_Laser, ShaderDatabase.Transparent, color);
             var matrix = default(Matrix4x4);
             matrix.SetTRS(pos, Quaternion.AngleAxis(angle, Vector3.up), new Vector3(x, 1f, lengthHorizontal));
             Graphics.DrawMesh(MeshPool.plane10, matrix, material, 0);
@@ -862,8 +868,7 @@ public class Comp_DrakkenLaserDrill_Attack_CrossMap : ThingComp
         {
             a = MinLaser_Alpha
         };
-        var material = MaterialPool.MatFrom(ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Laser/Laser"),
-            ShaderDatabase.Transparent, color);
+        var material = MaterialPool.MatFrom(Tex_Laser, ShaderDatabase.Transparent, color);
         var matrix = default(Matrix4x4);
         matrix.SetTRS(pos, Quaternion.AngleAxis(angle, Vector3.up), new Vector3(x, 1f, lengthHorizontal));
         Graphics.DrawMesh(MeshPool.plane10, matrix, material, 0);
@@ -871,12 +876,7 @@ public class Comp_DrakkenLaserDrill_Attack_CrossMap : ThingComp
 
     public override void CompTick()
     {
-        Building_DrakkenLaserDrill_Icon_CrossMap =
-            ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Icon/Beacon_CrossMap");
-        Building_DrakkenLaserDrill_Icon_AllAttack_CrossMap =
-            ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Icon/AllAttack _CrossMap");
-        if (parent is Building_DrakkenLaserDrill building_DrakkenLaserDrill &&
-            building_DrakkenLaserDrill.Building_DrakkenLaserDrill_Beacon_CrossMap == null)
+        if (parent is Building_DrakkenLaserDrill { Building_DrakkenLaserDrill_Beacon_CrossMap: null })
         {
             return;
         }

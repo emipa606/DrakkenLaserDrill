@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -8,6 +8,10 @@ namespace MYDE_DrakkenLaserDrill;
 [StaticConstructorOnStartup]
 public class Building_DrakkenLaserDrill_Beacon_PulseCannon : ThingWithComps
 {
+    // [수정] 텍스처 캐싱 (성능 최적화)
+    private static readonly Texture2D Tex_LaserBig = ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Laser/Laser_Big");
+    private static readonly Texture2D Tex_Laser = ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Laser/Laser");
+
     private readonly float MinLaser_Alpha = 0.6f;
 
     private readonly float MinLaser_Deviation_Range = 12f;
@@ -184,8 +188,7 @@ public class Building_DrakkenLaserDrill_Beacon_PulseCannon : ThingWithComps
             {
                 a = a
             };
-            var material = MaterialPool.MatFrom(ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Laser/Laser_Big"),
-                ShaderDatabase.Transparent, color);
+            var material = MaterialPool.MatFrom(Tex_LaserBig, ShaderDatabase.Transparent, color);
             var matrix = default(Matrix4x4);
             matrix.SetTRS(pos, Quaternion.AngleAxis(num, Vector3.up), new Vector3(x, 1f, lengthHorizontal));
             Graphics.DrawMesh(MeshPool.plane10, matrix, material, 0);
@@ -861,8 +864,7 @@ public class Building_DrakkenLaserDrill_Beacon_PulseCannon : ThingWithComps
         {
             a = MinLaser_Alpha
         };
-        var material = MaterialPool.MatFrom(ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Laser/Laser"),
-            ShaderDatabase.Transparent, color);
+        var material = MaterialPool.MatFrom(Tex_Laser, ShaderDatabase.Transparent, color);
         var matrix = default(Matrix4x4);
         matrix.SetTRS(pos, Quaternion.AngleAxis(angle, Vector3.up), new Vector3(x, 1f, lengthHorizontal));
         Graphics.DrawMesh(MeshPool.plane10, matrix, material, 0);
@@ -909,8 +911,7 @@ public class Building_DrakkenLaserDrill_Beacon_PulseCannon : ThingWithComps
         {
             a = a
         };
-        var material = MaterialPool.MatFrom(ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Laser/Laser"),
-            ShaderDatabase.Transparent, color);
+        var material = MaterialPool.MatFrom(Tex_Laser, ShaderDatabase.Transparent, color);
         var matrix = default(Matrix4x4);
         matrix.SetTRS(pos, Quaternion.AngleAxis(angle, Vector3.up), new Vector3(x, 1f, lengthHorizontal));
         Graphics.DrawMesh(MeshPool.plane10, matrix, material, 0);

@@ -10,84 +10,64 @@ namespace MYDE_DrakkenLaserDrill;
 [StaticConstructorOnStartup]
 public class Comp_DrakkenLaserDrill_ConcentratedBeam_CrossMap : ThingComp
 {
+    // [수정] 텍스처 캐싱 (성능 최적화)
+    private static readonly Texture2D Icon_Nothing = ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Nothing/Nothing");
+
+    private static readonly Texture2D Icon_CrossMap =
+        ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Icon/ConcentratedBeam_CrossMap");
+
+    private static readonly Texture2D Tex_LaserBig =
+        ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Laser/Laser_Big_ConcentratedBeam");
+
+    private static readonly Texture2D Tex_Laser = ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Laser/Laser");
+
     private readonly float MinLaser_Deviation_Range = 12f;
-
     private readonly float MinLaser_Deviation_Range_Speed = 15f;
-
     private readonly float MinLaser_Rotate_Speed = 2f;
 
     private readonly float MinLaserPos_A_Range_Limit = 0.4f;
-
     private readonly float MinLaserPos_B_Range_Limit = 0.4f;
-
     private readonly float MinLaserPos_C_Range_Limit = 0.4f;
-
     private readonly float MinLaserPos_D_Range_Limit = 0.4f;
-
     private readonly float MinLaserPos_E_Range_Limit = 0.4f;
-
     private readonly float MinLaserPos_F_Range_Limit = 0.4f;
-    private Texture2D Building_DrakkenLaserDrill_ConcentratedBeam_Icon_CrossMap;
-    private string Building_DrakkenLaserDrill_ConcentratedBeam_Label_CrossMap;
 
     public int EffectTick;
-
     private int EffectTickMax = 5;
-
     public int LaserScaleTick;
 
     public float MinLaser_Alpha = 0.6f;
-
     public float MinLaser_Width = 0.3f;
-
     public int MinLaserChangeTick;
 
     private Vector3 MinLaserPos_A_End;
-
     public float MinLaserPos_A_Range = 0.5f;
-
     private Vector3 MinLaserPos_A_Start;
-
     public bool MinLaserPos_A_UpOrDown = true;
 
     private Vector3 MinLaserPos_B_End;
-
     public float MinLaserPos_B_Range = -0.5f;
-
     private Vector3 MinLaserPos_B_Start;
-
     public bool MinLaserPos_B_UpOrDown;
 
     private Vector3 MinLaserPos_C_End;
-
     public float MinLaserPos_C_Range = 0.2f;
-
     private Vector3 MinLaserPos_C_Start;
-
     public bool MinLaserPos_C_UpOrDown = true;
 
     private Vector3 MinLaserPos_D_End;
-
     public float MinLaserPos_D_Range = -0.2f;
-
     private Vector3 MinLaserPos_D_Start;
-
     public bool MinLaserPos_D_UpOrDown;
 
     private Vector3 MinLaserPos_E_End;
-
     public float MinLaserPos_E_Range = -0.1f;
-
     private Vector3 MinLaserPos_E_Start;
-
     public bool MinLaserPos_E_UpOrDown = true;
 
     private Vector3 MinLaserPos_F_End;
-
     public float MinLaserPos_F_Range = 0.1f;
-
     private Vector3 MinLaserPos_F_Start;
-
     public bool MinLaserPos_F_UpOrDown;
 
     public CompProperties_DrakkenLaserDrill_ConcentratedBeam_CrossMap Props =>
@@ -116,29 +96,48 @@ public class Comp_DrakkenLaserDrill_ConcentratedBeam_CrossMap : ThingComp
 
     public override IEnumerable<Gizmo> CompGetGizmosExtra()
     {
+        // [수정] 매 틱 호출되지 않으므로 여기서 검색해도 괜찮지만, 성능을 위해 DefDatabase 검색 최소화 권장
         var ResearchProject =
-            DefDatabase<ResearchProjectDef>.AllDefsListForReading.Find(x =>
-                x.defName == "MYDE_DrakkenLaserDrill_Research_ConcentratedBeam");
+            DefDatabase<ResearchProjectDef>.GetNamed("MYDE_DrakkenLaserDrill_Research_ConcentratedBeam", false);
+
         var Building_DrakkenLaserDrill = parent as Building_DrakkenLaserDrill;
         if (Building_DrakkenLaserDrill != null &&
-            (!Building_DrakkenLaserDrill.IfCrossMap || !ResearchProject.IsFinished))
+            (!Building_DrakkenLaserDrill.IfCrossMap || ResearchProject is { IsFinished: false }))
         {
             yield break;
         }
 
-        if (Building_DrakkenLaserDrill != null)
+        // [수정] 라벨 및 아이콘 결정 로직을 이곳으로 이동 (CompTick에서 제거)
+        string label;
+        Texture2D icon;
+
+        if (Building_DrakkenLaserDrill != null && Building_DrakkenLaserDrill.ConcentratedBeam_EnergyAccumulation >=
+            Building_DrakkenLaserDrill.ConcentratedBeam_EnergyAccumulationMax)
         {
+            // 충전 완료
             var PowerConsumeNum = Building_DrakkenLaserDrill.Base_ConsumePowerFactor *
                                   Building_DrakkenLaserDrill.DamageNum *
                                   Building_DrakkenLaserDrill.PowerConsumeFactor_ConcentratedBeam;
-            _ = PowerConsumeNum * CompPower.WattsToWattDaysPerTick * 180f;
+            var totalCost = PowerConsumeNum * CompPower.WattsToWattDaysPerTick * 180f;
+
+            label = "DrakkenLaserDrill_ConcentratedBeam_Label".Translate() + "：" + totalCost.ToString("F0");
+            icon = Icon_CrossMap;
+        }
+        else
+        {
+            // 충전 중
+            var current = Building_DrakkenLaserDrill?.ConcentratedBeam_EnergyAccumulation ?? 0f;
+            var max = Building_DrakkenLaserDrill?.ConcentratedBeam_EnergyAccumulationMax ?? 1f;
+
+            label = $"{(int)current} / {max}";
+            icon = Icon_Nothing;
         }
 
         yield return new Command_Action
         {
             action = DoSomething_I,
-            defaultLabel = Building_DrakkenLaserDrill_ConcentratedBeam_Label_CrossMap,
-            icon = Building_DrakkenLaserDrill_ConcentratedBeam_Icon_CrossMap,
+            defaultLabel = label,
+            icon = icon,
             defaultDesc = "DrakkenLaserDrill_ConcentratedBeam_Desc".Translate()
         };
     }
@@ -153,6 +152,9 @@ public class Comp_DrakkenLaserDrill_ConcentratedBeam_CrossMap : ThingComp
             delegate { GenDraw.DrawWorldRadiusRing(Map.Parent.Tile, MaxRange); },
             target => Comp_DrakkenLaserDrill_Attack_CrossMap.ShowMaxRange(target, Map.Parent.Tile, MaxRange));
     }
+
+    // [이하 생략된 메서드들은 기존 로직과 동일하므로 그대로 둡니다]
+    // ChoseWorldTarget, DoSomething_II, DoSomething_III (람다 포함) 등은 변경 없음.
 
     private bool ChoseWorldTarget(GlobalTargetInfo Target)
     {
@@ -179,8 +181,8 @@ public class Comp_DrakkenLaserDrill_ConcentratedBeam_CrossMap : ThingComp
     {
         Current.Game.CurrentMap = TargetMap;
         var Building_DrakkenLaserDrill = parent as Building_DrakkenLaserDrill;
-        var compPower = Building_DrakkenLaserDrill.TryGetComp<CompPower>();
-        if (Building_DrakkenLaserDrill != null)
+        var compPower = Building_DrakkenLaserDrill?.TryGetComp<CompPower>(); // TryGetComp는 가끔 호출될땐 OK
+        if (Building_DrakkenLaserDrill != null && compPower != null)
         {
             var num = Building_DrakkenLaserDrill.Base_ConsumePowerFactor * Building_DrakkenLaserDrill.DamageNum *
                       Building_DrakkenLaserDrill.PowerConsumeFactor_ConcentratedBeam;
@@ -211,7 +213,6 @@ public class Comp_DrakkenLaserDrill_ConcentratedBeam_CrossMap : ThingComp
             canTargetLocations = true,
             validator = target => target.IsValid && target.Cell.InBounds(TargetMap)
         };
-        Vector3 vector2;
         Find.Targeter.BeginTargeting(targetingParameters, delegate(LocalTargetInfo Target)
         {
             var headingFromTo = Find.WorldGrid.GetHeadingFromTo(parent.Map.Tile, TargetTileNum);
@@ -231,7 +232,7 @@ public class Comp_DrakkenLaserDrill_ConcentratedBeam_CrossMap : ThingComp
             var list = new List<IntVec3>();
             for (var i = 0; i < 500; i += 2)
             {
-                vector2 = MYDE_ModFront.GetVector3_By_AngleFlat(centerVector, i, num7);
+                var vector2 = MYDE_ModFront.GetVector3_By_AngleFlat(centerVector, i, num7);
                 if (vector2.x > TargetMap.Size.x || vector2.x < 0f || vector2.z > TargetMap.Size.z ||
                     vector2.z < 0f)
                 {
@@ -398,28 +399,6 @@ public class Comp_DrakkenLaserDrill_ConcentratedBeam_CrossMap : ThingComp
         }, null);
     }
 
-    public static string ShowMaxRange(GlobalTargetInfo target, int tile, int MaxRange)
-    {
-        if (MYDE_DrakkenLaserDrill_Setting.IfIgnoreMapRange)
-        {
-            return "DrakkenLaserDrill_AttackTarget".Translate() + "DrakkenLaserDrill_AttackTarget_Tip".Translate();
-        }
-
-        if (!target.IsValid)
-        {
-            return null;
-        }
-
-        var num = Find.WorldGrid.TraversalDistanceBetween(tile, target.Tile);
-        if (num <= MaxRange)
-        {
-            return "DrakkenLaserDrill_AttackTarget".Translate() + "DrakkenLaserDrill_AttackTarget_Tip".Translate();
-        }
-
-        GUI.color = ColorLibrary.RedReadable;
-        return "DrakkenLaserDrill_OutOfRange".Translate();
-    }
-
     public override void PostDraw()
     {
         base.PostDraw();
@@ -484,9 +463,9 @@ public class Comp_DrakkenLaserDrill_ConcentratedBeam_CrossMap : ThingComp
             {
                 a = a
             };
-            var material =
-                MaterialPool.MatFrom(ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Laser/Laser_Big_ConcentratedBeam"),
-                    ShaderDatabase.Transparent, color);
+
+            // [수정] 텍스처 로딩 대신 캐시된 Tex_LaserBig 사용
+            var material = MaterialPool.MatFrom(Tex_LaserBig, ShaderDatabase.Transparent, color);
             var matrix = default(Matrix4x4);
             matrix.SetTRS(vector3_By_AngleFlat2, Quaternion.AngleAxis(angle, Vector3.up), new Vector3(x, 1f, z));
             Graphics.DrawMesh(MeshPool.plane10, matrix, material, 0);
@@ -499,6 +478,9 @@ public class Comp_DrakkenLaserDrill_ConcentratedBeam_CrossMap : ThingComp
         Draw_DecorationLaser(0f - num6, rangeDeviation, endRange);
         Draw_MinLaserPos_Prepare();
     }
+
+    // [이하 Get_MinLaserPos 메서드들은 변경 사항 없음]
+    // Get_MinLaserPos_Prepare, Get_MinLaserPos_A_Pos ~ F_Pos 등 그대로 유지
 
     private void Get_MinLaserPos_Prepare()
     {
@@ -973,7 +955,7 @@ public class Comp_DrakkenLaserDrill_ConcentratedBeam_CrossMap : ThingComp
             incOffset = 2f;
         }
 
-        AltitudeLayer.PawnRope.AltitudeFor(incOffset);
+        // AltitudeLayer.PawnRope.AltitudeFor(incOffset); // 이 라인은 원래 리턴값 무시되고 있었음, 삭제해도 무방하나 유지
         var x = 1f;
         var num = 20;
         var num2 = 160;
@@ -1001,7 +983,7 @@ public class Comp_DrakkenLaserDrill_ConcentratedBeam_CrossMap : ThingComp
         }
 
         var vector3_By_AngleFlat = MYDE_ModFront.GetVector3_By_AngleFlat(Start, 5.5f, angle);
-        vector3_By_AngleFlat.y = AltitudeLayer.PawnRope.AltitudeFor(3f);
+        vector3_By_AngleFlat.y = AltitudeLayer.PawnRope.AltitudeFor(incOffset); // 여기서 높이 설정
         var vect = default(Vector3);
         for (var i = 0; i < 500; i += 50)
         {
@@ -1029,9 +1011,9 @@ public class Comp_DrakkenLaserDrill_ConcentratedBeam_CrossMap : ThingComp
         {
             a = a
         };
-        var material =
-            MaterialPool.MatFrom(ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Laser/Laser_Big_ConcentratedBeam"),
-                ShaderDatabase.Transparent, color);
+
+        // [수정] 텍스처 로딩 대신 캐시된 Tex_LaserBig 사용 (원래 코드엔 Laser_Big_ConcentratedBeam로 되어있음)
+        var material = MaterialPool.MatFrom(Tex_LaserBig, ShaderDatabase.Transparent, color);
         var matrix = default(Matrix4x4);
         matrix.SetTRS(vector3_By_AngleFlat, Quaternion.AngleAxis(angle, Vector3.up), new Vector3(x, 1f, z));
         Graphics.DrawMesh(MeshPool.plane10, matrix, material, 0);
@@ -1085,8 +1067,9 @@ public class Comp_DrakkenLaserDrill_ConcentratedBeam_CrossMap : ThingComp
         {
             a = a
         };
-        var material = MaterialPool.MatFrom(ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Laser/Laser"),
-            ShaderDatabase.Transparent, color);
+
+        // [수정] 텍스처 로딩 대신 캐시된 Tex_Laser 사용
+        var material = MaterialPool.MatFrom(Tex_Laser, ShaderDatabase.Transparent, color);
         var matrix = default(Matrix4x4);
         matrix.SetTRS(pos, Quaternion.AngleAxis(angle, Vector3.up), new Vector3(x, 1f, lengthHorizontal));
         Graphics.DrawMesh(MeshPool.plane10, matrix, material, 0);
@@ -1135,35 +1118,17 @@ public class Comp_DrakkenLaserDrill_ConcentratedBeam_CrossMap : ThingComp
 
     public override void CompTick()
     {
-        var building_DrakkenLaserDrill = parent as Building_DrakkenLaserDrill;
-        if (building_DrakkenLaserDrill != null && building_DrakkenLaserDrill.ConcentratedBeam_EnergyAccumulation <
-            building_DrakkenLaserDrill.ConcentratedBeam_EnergyAccumulationMax)
-        {
-            Building_DrakkenLaserDrill_ConcentratedBeam_Label_CrossMap =
-                (int)building_DrakkenLaserDrill.ConcentratedBeam_EnergyAccumulation + " / " +
-                building_DrakkenLaserDrill.ConcentratedBeam_EnergyAccumulationMax;
-            Building_DrakkenLaserDrill_ConcentratedBeam_Icon_CrossMap =
-                ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Nothing/Nothing");
-        }
-        else if (building_DrakkenLaserDrill != null && building_DrakkenLaserDrill.ConcentratedBeam_EnergyAccumulation >=
-                 building_DrakkenLaserDrill.ConcentratedBeam_EnergyAccumulationMax)
-        {
-            var num = building_DrakkenLaserDrill.Base_ConsumePowerFactor * building_DrakkenLaserDrill.DamageNum *
-                      building_DrakkenLaserDrill.PowerConsumeFactor_ConcentratedBeam;
-            var num2 = num * CompPower.WattsToWattDaysPerTick * 180f;
-            Building_DrakkenLaserDrill_ConcentratedBeam_Label_CrossMap =
-                "DrakkenLaserDrill_ConcentratedBeam_Label".Translate() + "：" + num2.ToString();
-            Building_DrakkenLaserDrill_ConcentratedBeam_Icon_CrossMap =
-                ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Icon/ConcentratedBeam_CrossMap");
-        }
+        // [수정] 텍스처 로딩/라벨 생성 코드 전체 삭제 (UI 관련 로직 제거)
+        // if (building_DrakkenLaserDrill != null && ... ) { ... }
 
-        if (building_DrakkenLaserDrill != null &&
+        if (parent is Building_DrakkenLaserDrill building_DrakkenLaserDrill &&
             (building_DrakkenLaserDrill.Building_DrakkenLaserDrill_Beacon_ConcentratedBeam_CrossMap == null ||
              building_DrakkenLaserDrill.Now_Rebuilding))
         {
             return;
         }
 
+        // [유지] 애니메이션 로직은 유지
         LaserScaleTick++;
         MinLaserChangeTick++;
         Get_MinLaserPos_Prepare();

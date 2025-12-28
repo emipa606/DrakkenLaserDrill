@@ -8,6 +8,12 @@ namespace MYDE_DrakkenLaserDrill;
 [StaticConstructorOnStartup]
 public class Building_DrakkenLaserDrill_Beacon_ConcentratedBeam : ThingWithComps
 {
+    // [??] ??? ?? (?? ???)
+    private static readonly Texture2D Tex_LaserBig =
+        ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Laser/Laser_Big_ConcentratedBeam");
+
+    private static readonly Texture2D Tex_Laser = ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Laser/Laser");
+
     private readonly float MinLaser_Deviation_Range = 12f;
 
     private readonly float MinLaser_Deviation_Range_Speed = 15f;
@@ -207,9 +213,7 @@ public class Building_DrakkenLaserDrill_Beacon_ConcentratedBeam : ThingWithComps
             {
                 a = a
             };
-            var material =
-                MaterialPool.MatFrom(ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Laser/Laser_Big_ConcentratedBeam"),
-                    ShaderDatabase.Transparent, color);
+            var material = MaterialPool.MatFrom(Tex_LaserBig, ShaderDatabase.Transparent, color);
             var matrix = default(Matrix4x4);
             matrix.SetTRS(vector3_By_AngleFlat, Quaternion.AngleAxis(num5, Vector3.up), new Vector3(x, 1f, z));
             Graphics.DrawMesh(MeshPool.plane10, matrix, material, 0);
@@ -472,20 +476,27 @@ public class Building_DrakkenLaserDrill_Beacon_ConcentratedBeam : ThingWithComps
 
     private void Get_MinLaserPos_A_Pos()
     {
-        if (MinLaserPos_A_UpOrDown)
+        switch (MinLaserPos_A_UpOrDown)
         {
-            MinLaserPos_A_Range -= 0.01f;
-            if (MinLaserPos_A_Range <= 0f - MinLaserPos_A_Range_Limit)
+            case true:
             {
-                MinLaserPos_A_UpOrDown = false;
+                MinLaserPos_A_Range -= 0.01f;
+                if (MinLaserPos_A_Range <= 0f - MinLaserPos_A_Range_Limit)
+                {
+                    MinLaserPos_A_UpOrDown = false;
+                }
+
+                break;
             }
-        }
-        else if (!MinLaserPos_A_UpOrDown)
-        {
-            MinLaserPos_A_Range += 0.01f;
-            if (MinLaserPos_A_Range >= MinLaserPos_A_Range_Limit)
+            case false:
             {
-                MinLaserPos_A_UpOrDown = true;
+                MinLaserPos_A_Range += 0.01f;
+                if (MinLaserPos_A_Range >= MinLaserPos_A_Range_Limit)
+                {
+                    MinLaserPos_A_UpOrDown = true;
+                }
+
+                break;
             }
         }
 
@@ -518,20 +529,27 @@ public class Building_DrakkenLaserDrill_Beacon_ConcentratedBeam : ThingWithComps
 
     private void Get_MinLaserPos_B_Pos()
     {
-        if (MinLaserPos_B_UpOrDown)
+        switch (MinLaserPos_B_UpOrDown)
         {
-            MinLaserPos_B_Range -= 0.01f;
-            if (MinLaserPos_B_Range <= 0f - MinLaserPos_B_Range_Limit)
+            case true:
             {
-                MinLaserPos_B_UpOrDown = false;
+                MinLaserPos_B_Range -= 0.01f;
+                if (MinLaserPos_B_Range <= 0f - MinLaserPos_B_Range_Limit)
+                {
+                    MinLaserPos_B_UpOrDown = false;
+                }
+
+                break;
             }
-        }
-        else if (!MinLaserPos_B_UpOrDown)
-        {
-            MinLaserPos_B_Range += 0.01f;
-            if (MinLaserPos_B_Range >= MinLaserPos_B_Range_Limit)
+            case false:
             {
-                MinLaserPos_B_UpOrDown = true;
+                MinLaserPos_B_Range += 0.01f;
+                if (MinLaserPos_B_Range >= MinLaserPos_B_Range_Limit)
+                {
+                    MinLaserPos_B_UpOrDown = true;
+                }
+
+                break;
             }
         }
 
@@ -564,20 +582,27 @@ public class Building_DrakkenLaserDrill_Beacon_ConcentratedBeam : ThingWithComps
 
     private void Get_MinLaserPos_C_Pos()
     {
-        if (MinLaserPos_C_UpOrDown)
+        switch (MinLaserPos_C_UpOrDown)
         {
-            MinLaserPos_C_Range -= 0.01f;
-            if (MinLaserPos_C_Range <= 0f - MinLaserPos_C_Range_Limit)
+            case true:
             {
-                MinLaserPos_C_UpOrDown = false;
+                MinLaserPos_C_Range -= 0.01f;
+                if (MinLaserPos_C_Range <= 0f - MinLaserPos_C_Range_Limit)
+                {
+                    MinLaserPos_C_UpOrDown = false;
+                }
+
+                break;
             }
-        }
-        else if (!MinLaserPos_C_UpOrDown)
-        {
-            MinLaserPos_C_Range += 0.01f;
-            if (MinLaserPos_C_Range >= MinLaserPos_C_Range_Limit)
+            case false:
             {
-                MinLaserPos_C_UpOrDown = true;
+                MinLaserPos_C_Range += 0.01f;
+                if (MinLaserPos_C_Range >= MinLaserPos_C_Range_Limit)
+                {
+                    MinLaserPos_C_UpOrDown = true;
+                }
+
+                break;
             }
         }
 
@@ -610,20 +635,27 @@ public class Building_DrakkenLaserDrill_Beacon_ConcentratedBeam : ThingWithComps
 
     private void Get_MinLaserPos_D_Pos()
     {
-        if (MinLaserPos_D_UpOrDown)
+        switch (MinLaserPos_D_UpOrDown)
         {
-            MinLaserPos_D_Range -= 0.01f;
-            if (MinLaserPos_D_Range <= 0f - MinLaserPos_D_Range_Limit)
+            case true:
             {
-                MinLaserPos_D_UpOrDown = false;
+                MinLaserPos_D_Range -= 0.01f;
+                if (MinLaserPos_D_Range <= 0f - MinLaserPos_D_Range_Limit)
+                {
+                    MinLaserPos_D_UpOrDown = false;
+                }
+
+                break;
             }
-        }
-        else if (!MinLaserPos_D_UpOrDown)
-        {
-            MinLaserPos_D_Range += 0.01f;
-            if (MinLaserPos_D_Range >= MinLaserPos_D_Range_Limit)
+            case false:
             {
-                MinLaserPos_D_UpOrDown = true;
+                MinLaserPos_D_Range += 0.01f;
+                if (MinLaserPos_D_Range >= MinLaserPos_D_Range_Limit)
+                {
+                    MinLaserPos_D_UpOrDown = true;
+                }
+
+                break;
             }
         }
 
@@ -656,20 +688,27 @@ public class Building_DrakkenLaserDrill_Beacon_ConcentratedBeam : ThingWithComps
 
     private void Get_MinLaserPos_E_Pos()
     {
-        if (MinLaserPos_E_UpOrDown)
+        switch (MinLaserPos_E_UpOrDown)
         {
-            MinLaserPos_E_Range -= 0.01f;
-            if (MinLaserPos_E_Range <= 0f - MinLaserPos_E_Range_Limit)
+            case true:
             {
-                MinLaserPos_E_UpOrDown = false;
+                MinLaserPos_E_Range -= 0.01f;
+                if (MinLaserPos_E_Range <= 0f - MinLaserPos_E_Range_Limit)
+                {
+                    MinLaserPos_E_UpOrDown = false;
+                }
+
+                break;
             }
-        }
-        else if (!MinLaserPos_E_UpOrDown)
-        {
-            MinLaserPos_E_Range += 0.01f;
-            if (MinLaserPos_E_Range >= MinLaserPos_E_Range_Limit)
+            case false:
             {
-                MinLaserPos_E_UpOrDown = true;
+                MinLaserPos_E_Range += 0.01f;
+                if (MinLaserPos_E_Range >= MinLaserPos_E_Range_Limit)
+                {
+                    MinLaserPos_E_UpOrDown = true;
+                }
+
+                break;
             }
         }
 
@@ -702,20 +741,27 @@ public class Building_DrakkenLaserDrill_Beacon_ConcentratedBeam : ThingWithComps
 
     private void Get_MinLaserPos_F_Pos()
     {
-        if (MinLaserPos_F_UpOrDown)
+        switch (MinLaserPos_F_UpOrDown)
         {
-            MinLaserPos_F_Range -= 0.01f;
-            if (MinLaserPos_F_Range <= 0f - MinLaserPos_F_Range_Limit)
+            case true:
             {
-                MinLaserPos_F_UpOrDown = false;
+                MinLaserPos_F_Range -= 0.01f;
+                if (MinLaserPos_F_Range <= 0f - MinLaserPos_F_Range_Limit)
+                {
+                    MinLaserPos_F_UpOrDown = false;
+                }
+
+                break;
             }
-        }
-        else if (!MinLaserPos_F_UpOrDown)
-        {
-            MinLaserPos_F_Range += 0.01f;
-            if (MinLaserPos_F_Range >= MinLaserPos_F_Range_Limit)
+            case false:
             {
-                MinLaserPos_F_UpOrDown = true;
+                MinLaserPos_F_Range += 0.01f;
+                if (MinLaserPos_F_Range >= MinLaserPos_F_Range_Limit)
+                {
+                    MinLaserPos_F_UpOrDown = true;
+                }
+
+                break;
             }
         }
 
@@ -837,9 +883,7 @@ public class Building_DrakkenLaserDrill_Beacon_ConcentratedBeam : ThingWithComps
         {
             a = a
         };
-        var material =
-            MaterialPool.MatFrom(ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Laser/Laser_Big_ConcentratedBeam"),
-                ShaderDatabase.Transparent, color);
+        var material = MaterialPool.MatFrom(Tex_LaserBig, ShaderDatabase.Transparent, color);
         var matrix = default(Matrix4x4);
         matrix.SetTRS(vector3_By_AngleFlat, Quaternion.AngleAxis(angle, Vector3.up), new Vector3(x, 1f, z));
         Graphics.DrawMesh(MeshPool.plane10, matrix, material, 0);
@@ -866,13 +910,14 @@ public class Building_DrakkenLaserDrill_Beacon_ConcentratedBeam : ThingWithComps
         var num = (drawPos - vector).AngleFlat();
         var a = 0.8f;
         var num2 = num + AngleDeviation;
-        if (num2 > 360f)
+        switch (num2)
         {
-            num2 -= 360f;
-        }
-        else if (num2 < 0f)
-        {
-            num2 += 360f;
+            case > 360f:
+                num2 -= 360f;
+                break;
+            case < 0f:
+                num2 += 360f;
+                break;
         }
 
         var vector3_By_AngleFlat = MYDE_ModFront.GetVector3_By_AngleFlat(drawPos, RangeDeviation, num2);
@@ -886,8 +931,7 @@ public class Building_DrakkenLaserDrill_Beacon_ConcentratedBeam : ThingWithComps
         {
             a = a
         };
-        var material = MaterialPool.MatFrom(ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Laser/Laser"),
-            ShaderDatabase.Transparent, color);
+        var material = MaterialPool.MatFrom(Tex_Laser, ShaderDatabase.Transparent, color);
         var matrix = default(Matrix4x4);
         matrix.SetTRS(pos, Quaternion.AngleAxis(angle, Vector3.up), new Vector3(x, 1f, lengthHorizontal));
         Graphics.DrawMesh(MeshPool.plane10, matrix, material, 0);

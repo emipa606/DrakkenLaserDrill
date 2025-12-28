@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -8,7 +8,9 @@ namespace MYDE_DrakkenLaserDrill;
 [StaticConstructorOnStartup]
 public class Comp_DrakkenLaserDrill_MouseAttack : ThingComp
 {
-    private Texture2D Building_DrakkenLaserDrill_MouseAttack_Icon;
+    // [수정] 텍스처를 static으로 캐싱 (성능 최적화 핵심)
+    private static readonly Texture2D Icon_MouseAttack =
+        ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Icon/MouseAttack");
 
     public CompProperties_DrakkenLaserDrill_MouseAttack Props => props as CompProperties_DrakkenLaserDrill_MouseAttack;
 
@@ -20,7 +22,7 @@ public class Comp_DrakkenLaserDrill_MouseAttack : ThingComp
             {
                 action = DoSomething,
                 defaultLabel = "DrakkenLaserDrill_MouseAttack_Label".Translate(),
-                icon = Building_DrakkenLaserDrill_MouseAttack_Icon,
+                icon = Icon_MouseAttack, // [수정] 캐시된 아이콘 사용
                 defaultDesc = "DrakkenLaserDrill_MouseAttack_Desc".Translate()
             };
         }
@@ -53,11 +55,8 @@ public class Comp_DrakkenLaserDrill_MouseAttack : ThingComp
                     .MYDE_Building_DrakkenLaserDrill_Beacon_Mouse);
             ((Building_DrakkenLaserDrill_Beacon_Mouse)GenSpawn.Spawn(building_DrakkenLaserDrill_Beacon_Mouse, cell,
                 Map)).CheckSpawn(Building_DrakkenLaserDrill, realPos, centerVector);
-            if (Building_DrakkenLaserDrill != null)
-            {
-                Building_DrakkenLaserDrill.Building_DrakkenLaserDrill_Beacon_Mouse =
-                    building_DrakkenLaserDrill_Beacon_Mouse;
-            }
+            Building_DrakkenLaserDrill?.Building_DrakkenLaserDrill_Beacon_Mouse =
+                building_DrakkenLaserDrill_Beacon_Mouse;
 
             DoSomething_Move();
         }, null, null);
@@ -103,9 +102,5 @@ public class Comp_DrakkenLaserDrill_MouseAttack : ThingComp
         }, null);
     }
 
-    public override void CompTick()
-    {
-        Building_DrakkenLaserDrill_MouseAttack_Icon =
-            ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Icon/MouseAttack");
-    }
+    // [수정] CompTick 삭제됨
 }

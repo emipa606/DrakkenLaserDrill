@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LanguageData>
+  <!-- EN: Drakken Laser Drill -->
+  <MYDE_Building_DrakkenLaserDrill.label>드라켄 레이저 천공기</MYDE_Building_DrakkenLaserDrill.label>
+  <!-- EN: A giant laser turret that is infinitely upgraded through research technology, has infinite range and consumes power to cause damage. Through research technology, it can infinitely upgrade power storage, damage and armor penetration. -->
+  <MYDE_Building_DrakkenLaserDrill.description>연구을 통해 무한히 업그레이드되는 거대한 레이저 포탑으로, 무한한 사거리를 가지며 데미지를 입히기 위해 전력을 소비합니다. 연구 기술을 통해 전력 저장, 데미지 및 장갑 관통력을 무한히 업그레이드할 수 있습니다.</MYDE_Building_DrakkenLaserDrill.description>
+  <!-- EN: Beacon -->
+  <MYDE_Building_DrakkenLaserDrill_Beacon.label>비콘</MYDE_Building_DrakkenLaserDrill_Beacon.label>
+  <!-- EN: Beacon -->
+  <MYDE_Building_DrakkenLaserDrill_Beacon_ConcentratedBeam.label>비콘</MYDE_Building_DrakkenLaserDrill_Beacon_ConcentratedBeam.label>
+  <!-- EN: Beacon -->
+  <MYDE_Building_DrakkenLaserDrill_Beacon_ConcentratedBeam_CrossMap.label>비콘</MYDE_Building_DrakkenLaserDrill_Beacon_ConcentratedBeam_CrossMap.label>
+  <!-- EN: Beacon -->
+  <MYDE_Building_DrakkenLaserDrill_Beacon_CrossMap.label>비콘</MYDE_Building_DrakkenLaserDrill_Beacon_CrossMap.label>
+  <!-- EN: Beacon -->
+  <MYDE_Building_DrakkenLaserDrill_Beacon_Mouse.label>비콘</MYDE_Building_DrakkenLaserDrill_Beacon_Mouse.label>
+  <!-- EN: Beacon -->
+  <MYDE_Building_DrakkenLaserDrill_Beacon_Mouse_CrossMap.label>비콘</MYDE_Building_DrakkenLaserDrill_Beacon_Mouse_CrossMap.label>
+  <!-- EN: Beacon -->
+  <MYDE_Building_DrakkenLaserDrill_Beacon_PulseCannon.label>비콘</MYDE_Building_DrakkenLaserDrill_Beacon_PulseCannon.label>
+  <!-- EN: Beacon -->
+  <MYDE_Building_DrakkenLaserDrill_Beacon_PulseCannon_CrossMap.label>비콘</MYDE_Building_DrakkenLaserDrill_Beacon_PulseCannon_CrossMap.label>
+  <!-- EN: Upgrade Armor Penetration -->
+  <MYDE_Building_DrakkenLaserDrill_UpdateAP.label>방어구 관통 업그레이드</MYDE_Building_DrakkenLaserDrill_UpdateAP.label>
+  <!-- EN: Upgrade Armor Penetration for "Draken Laser Drill" -->
+  <MYDE_Building_DrakkenLaserDrill_UpdateAP.description>드라켄 레이저 천공기 방어구 관통 업그레이드</MYDE_Building_DrakkenLaserDrill_UpdateAP.description>
+  <!-- EN: Upgrade Damage -->
+  <MYDE_Building_DrakkenLaserDrill_UpdateDamage.label>데미지 업그레이드</MYDE_Building_DrakkenLaserDrill_UpdateDamage.label>
+  <!-- EN: Upgrade Damage for "Draken Laser Drill" -->
+  <MYDE_Building_DrakkenLaserDrill_UpdateDamage.description>드라켄 레이저 천공기 데미지 업그레이드</MYDE_Building_DrakkenLaserDrill_UpdateDamage.description>
+  <!-- EN: Upgrade Stored Energy -->
+  <MYDE_Building_DrakkenLaserDrill_UpdateEnergy.label>최대 저장 에너지 업그레이드</MYDE_Building_DrakkenLaserDrill_UpdateEnergy.label>
+  <!-- EN: Upgrade Stored Energy for "Draken Laser Drill" -->
+  <MYDE_Building_DrakkenLaserDrill_UpdateEnergy.description>드라켄 레이저 천공기 에너지 저장 업그레이드</MYDE_Building_DrakkenLaserDrill_UpdateEnergy.description>
+</LanguageData>

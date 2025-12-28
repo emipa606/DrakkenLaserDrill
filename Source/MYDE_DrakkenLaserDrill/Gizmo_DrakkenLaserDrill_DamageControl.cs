@@ -4,7 +4,7 @@ using Verse;
 namespace MYDE_DrakkenLaserDrill;
 
 [StaticConstructorOnStartup]
-public class Gizmo_DrakkenLaserDrill_DamageControl : Gizmo
+public sealed class Gizmo_DrakkenLaserDrill_DamageControl : Gizmo
 {
     public static readonly Texture2D WeaponControl_Attack_Building_Icon =
         ContentFinder<Texture2D>.Get("DrakkenLaserDrill_Icon/Beacon");
