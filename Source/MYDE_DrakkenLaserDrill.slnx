@@ -6,4 +6,13 @@
     <BuildType Name="Release" />
   </Configurations>
   <Project Path="MYDE_DrakkenLaserDrill/MYDE_DrakkenLaserDrill.csproj" />
+  <Folder Name="/XML/Patches/">
+    <File Path="../Patches/Thing.xml" />
+  </Folder>
+  <Folder Name="/XML/Defs/">
+    <File Path="../Defs/Thing.xml" />
+  </Folder>
+  <Folder Name="/XML/About/">
+    <File Path="../About/about.xml" />
+  </Folder>
 </Solution>

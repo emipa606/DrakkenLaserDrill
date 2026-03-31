@@ -86,4 +86,4 @@ Added a function to upgrade through building
 
  
 
-[![Image](https://img.shields.io/github/v/release/emipa606/DrakkenLaserDrill?label=latest%20version&style=plastic&color=9f1111&labelColor=black)](https://steamcommunity.com/sharedfiles/filedetails/changelog/3550292796) | tags:  infinite range
+[![Image](https://img.shields.io/github/v/release/emipa606/DrakkenLaserDrill?label=latest%20version&style=plastic&color=9f1111&labelColor=black)](https://steamcommunity.com/sharedfiles/filedetails/changelog/3550292796) | tags: infinite range
